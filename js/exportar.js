@@ -2,6 +2,10 @@ import { state, getAllNamesInEscala, fmtData } from './state.js';
 
 /* ─── Escala a exportar ──────────────────────────── */
 export function getEscalaExport() {
+  // Prefer active scale if it has data, otherwise use the most recent history item
+  if (state.escalaAtual && state.escalaAtual.midia && state.escalaAtual.midia.length > 0) {
+    return state.escalaAtual;
+  }
   return state.historico[0] || state.escalaAtual;
 }
 

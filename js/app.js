@@ -3,7 +3,7 @@ import { renderPool, onDragOver, onDrop, onDragLeave, gerarEscalaAutomatica, sal
 import { renderDashboard } from './dashboard.js';
 import { renderFuncTable, addFuncionario, removeFuncionario } from './funcionarios.js';
 import { renderHistorico, carregarEscala, removeHistorico } from './historico.js';
-import { gerarPDF, previewPDF, gerarExcel } from './exportar.js';
+import { gerarPDF, previewPDF, gerarExcel, getEscalaExport } from './exportar.js';
 import { supabase } from './supabase.js';
 import { getProductionDate, formatShiftLabel } from './dateUtils.js';
 
@@ -23,6 +23,7 @@ window.gerarExcel = gerarExcel;
 window.onDragOver = onDragOver;
 window.onDrop = onDrop;
 window.onDragLeave = onDragLeave;
+window.getEscalaExport = getEscalaExport;
 
 /* ─── INIT ───────────────────────────────────────── */
 window.onload = async function() {
@@ -46,6 +47,7 @@ window.onload = async function() {
       // Persistence logic: load scale for current production date if it exists
       const existingScale = state.historico.find(h => h.data === prodDate);
       if (existingScale) {
+        // Deep copy to state.escalaAtual
         state.escalaAtual = JSON.parse(JSON.stringify(existingScale));
         console.log('Loaded existing scale for production shift:', prodDate);
       } else {
@@ -98,6 +100,17 @@ export function showPage(id, event) {
   if (id === 'funcionarios') renderFuncTable();
   if (id === 'historico')    renderHistorico();
   if (id === 'escala')       renderPool();
+  if (id === 'exportar') {
+    const label = document.getElementById('export-shift-label');
+    if (label) {
+      const e = (state.escalaAtual && state.escalaAtual.midia && state.escalaAtual.midia.length > 0) ? state.escalaAtual : (state.historico[0] || null);
+      if (e && e.data) {
+        label.textContent = 'Relatório do Turno: ' + formatShiftLabel(e.data);
+      } else {
+        label.textContent = 'Nenhuma escala disponível para exportar.';
+      }
+    }
+  }
 }
 
 /* ─── MODAL ──────────────────────────────────────── */
