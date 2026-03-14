@@ -2,10 +2,11 @@
   "name": "vpc-producao",
   "version": "1.0.0",
   "description": "Sistema web para gerenciamento de escalas de produção da linha VPC.   Funciona 100% no navegador — sem instalação, sem servidor, sem banco de dados.",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
