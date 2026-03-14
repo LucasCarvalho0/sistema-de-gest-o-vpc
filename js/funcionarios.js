@@ -78,7 +78,7 @@ export async function addFuncionario() {
     }
   } catch (err) {
     console.error('Failed to sync to Supabase:', err);
-    alert('Erro de conexão com o banco de dados.');
+    alert('Erro de conexão com o banco de dados: ' + err.message);
   } finally {
     btn.textContent = originalText;
     btn.disabled = false;
