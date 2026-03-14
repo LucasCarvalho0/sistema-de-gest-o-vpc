@@ -1,10 +1,17 @@
 import { state, getAllNamesInEscala, avClass, initials } from './state.js';
+import { formatShiftLabel } from './dateUtils.js';
 
 export function renderDashboard() {
-  var escala  = state.historico[0] || null;
+  var escala  = (state.escalaAtual && state.escalaAtual.midia) ? state.escalaAtual : null;
   var noEscala = document.getElementById('dash-noescala');
   var setores  = document.getElementById('dash-setores');
   var linhas   = document.getElementById('dash-linhas');
+  
+  // Update Header Date with Shift Info if available
+  const dateLabel = document.getElementById('header-date');
+  if (escala && escala.data) {
+    dateLabel.textContent = 'PRODUÇÃO: ' + formatShiftLabel(escala.data);
+  }
 
   if (!escala) {
     noEscala.style.display = 'flex';

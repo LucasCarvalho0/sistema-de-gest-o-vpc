@@ -1,5 +1,6 @@
 import { state, getAllNamesInEscala } from './state.js';
 import { supabase } from './supabase.js';
+import { formatShiftLabel } from './dateUtils.js';
 
 /* ─── RENDER ─────────────────────────────────────── */
 export function renderHistorico() {
@@ -12,9 +13,7 @@ export function renderHistorico() {
 
   list.innerHTML = state.historico.map(function(h, i) {
     var total = getAllNamesInEscala(h).length;
-    var d = h.data
-      ? new Date(h.data + 'T12:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' })
-      : '—';
+    var d = formatShiftLabel(h.data);
     return '<div class="history-item">' +
       '<div>' +
         '<div class="history-date">' + d + '</div>' +

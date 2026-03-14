@@ -5,6 +5,7 @@ import { renderFuncTable, addFuncionario, removeFuncionario } from './funcionari
 import { renderHistorico, carregarEscala, removeHistorico } from './historico.js';
 import { gerarPDF, previewPDF, gerarExcel } from './exportar.js';
 import { supabase } from './supabase.js';
+import { getProductionDate, formatShiftLabel } from './dateUtils.js';
 
 // Expose to window for inline HTML handlers - MOVE TO TOP to ensure availability
 window.showPage = showPage;
@@ -26,22 +27,30 @@ window.onDragLeave = onDragLeave;
 /* ─── INIT ───────────────────────────────────────── */
 window.onload = async function() {
   updateHeaderDate();
-  var hoje = new Date().toISOString().slice(0,10);
-  document.getElementById('escala-data').value = hoje;
-  state.escalaAtual.data = hoje;
+  
+  const prodDate = getProductionDate();
+  document.getElementById('escala-data').value = prodDate;
+  state.escalaAtual.data = prodDate;
 
   // Load from Supabase
   try {
     const { data: funcs } = await supabase.from('funcionarios').select('*').order('nome');
     if (funcs && funcs.length > 0) {
       state.funcionarios = funcs;
-    } else {
-      console.log('Supabase empty or not configured, using local defaults.');
     }
 
     const { data: hist } = await supabase.from('escalas').select('*').order('data', { ascending: false });
     if (hist && hist.length > 0) {
       state.historico = hist;
+
+      // Persistence logic: load scale for current production date if it exists
+      const existingScale = state.historico.find(h => h.data === prodDate);
+      if (existingScale) {
+        state.escalaAtual = JSON.parse(JSON.stringify(existingScale));
+        console.log('Loaded existing scale for production shift:', prodDate);
+      } else {
+        console.log('No scale found for production shift:', prodDate, '- Starting empty (automatic reset).');
+      }
     }
   } catch (err) {
     console.warn('Could not load from Supabase, using defaults', err);
