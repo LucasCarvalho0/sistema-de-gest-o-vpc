@@ -2,6 +2,18 @@ import { state, getAllNamesInEscala } from './state.js';
 import { supabase } from './supabase.js';
 import { formatShiftLabel } from './dateUtils.js';
 
+// Expose to window for inline HTML handlers
+window.exportHistoryPDF = function(index) {
+  if (state.historico[index]) {
+    import('./exportar.js').then(m => m.gerarPDF(state.historico[index]));
+  }
+};
+window.exportHistoryExcel = function(index) {
+  if (state.historico[index]) {
+    import('./exportar.js').then(m => m.gerarExcel(state.historico[index]));
+  }
+};
+
 /* ─── RENDER ─────────────────────────────────────── */
 export function renderHistorico() {
   var list = document.getElementById('historico-list');
@@ -17,18 +29,13 @@ export function renderHistorico() {
     return '<div class="history-item">' +
       '<div>' +
         '<div class="history-date">' + d + '</div>' +
-        '<div class="history-meta">' +
-          total + ' operadores &middot; ' +
-          'Montagem: ' + h.midia.length + ' &middot; ' +
-          'Mov: '      + h.mov.length   + ' &middot; ' +
-          'Adesivos: ' + h.ades.length  +
-        '</div>' +
+        '<div class="history-meta">' + total + ' operadores</div>' +
       '</div>' +
       '<div class="btn-row">' +
-        '<button class="btn btn-secondary btn-sm" onclick="carregarEscala(' + i + ')">Carregar</button>' +
-        '<button class="btn btn-blue btn-sm"      onclick="window.gerarPDF(state.historico[' + i + '])">PDF</button>' +
-        '<button class="btn btn-green btn-sm"     onclick="window.gerarExcel(state.historico[' + i + '])">Excel</button>' +
-        '<button class="btn btn-danger btn-sm"    onclick="removeHistorico(' + i + ')">Excluir</button>' +
+        '<button class="btn btn-primary btn-sm" onclick="exportHistoryPDF(' + i + ')"><i class="fas fa-file-pdf"></i> PDF</button>' +
+        '<button class="btn btn-green btn-sm" onclick="exportHistoryExcel(' + i + ')"><i class="fas fa-file-excel"></i> Excel</button>' +
+        '<button class="btn btn-outline btn-sm" onclick=\'carregarEscala(' + i + ')\'>Ver</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="removeHistorico(' + i + ')">Excluir</button>' +
       '</div>' +
     '</div>';
   }).join('');

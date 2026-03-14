@@ -1,4 +1,5 @@
 import { state, getAllNamesInEscala, fmtData } from './state.js';
+import { formatShiftLabel } from './dateUtils.js';
 
 /* ─── Escala a exportar ──────────────────────────── */
 export function getEscalaExport() {
@@ -43,7 +44,7 @@ export function buildPDFContent(e) {
       </div>
       <h1 style="font-size: 22px; margin: 0 0 5px 0; color: #111;">Relatório de Escala</h1>
       <p style="color: #666; font-size: 13px; margin-bottom: 20px;">
-        Data: <strong>${fmtData(e.data)}</strong> &nbsp;|&nbsp; Operadores: <strong>${allNames.length}</strong> &nbsp;|&nbsp; Gerado: ${ts}
+        Turno: <strong>${formatShiftLabel(e.data)}</strong> &nbsp;|&nbsp; Operadores: <strong>${allNames.length}</strong> &nbsp;|&nbsp; Gerado: ${ts}
       </p>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
@@ -123,7 +124,7 @@ export function gerarPDF(escalaInput) {
           doc.setFontSize(11);
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(100, 100, 100);
-          doc.text(`Data: ${fmtData(e.data)}   |   Total de Operadores: ${getAllNamesInEscala(e).length}`, mg, y);
+          doc.text(`Turno: ${formatShiftLabel(e.data)}   |   Total de Operadores: ${getAllNamesInEscala(e).length}`, mg, y);
           y += 15;
         } else {
           y = 30; // Margin top for new page content
@@ -219,8 +220,9 @@ export function gerarPDF(escalaInput) {
         doc.setTextColor(180, 180, 180);
         doc.text(`VPC Produção - Página ${i} de ${totalPages}`, pW / 2, 288, { align: 'center' });
       }
-
-      doc.save(`escala-vpc-${e.data || 'relatorio'}.pdf`);
+      
+      const fileName = `escala-vpc-${formatShiftLabel(e.data).replace(/ /g, '-')}.pdf`;
+      doc.save(fileName);
       
       if (btn) {
         btn.textContent = 'Baixar PDF';
@@ -261,18 +263,18 @@ export function gerarExcel(escalaInput) {
   function runExcel() {
     try {
       var e = escalaInput || getEscalaExport();
-      var d = fmtData(e.data);
-      var rows = [['Data','Area','Funcionario','Carros']];
+      var labelTurno = formatShiftLabel(e.data);
+      var rows = [['Turno','Area','Funcionario','Carros']];
 
-      e.midia.forEach(function(o){ rows.push([d,'Montagem de Midia', o.nome, '-']); });
-      e.mov.forEach(function(o){   rows.push([d,'Movimentacao',       o.nome, '-']); });
-      e.ades.forEach(function(o){  rows.push([d,'Adesivos',           o.nome, '-']); });
-      if (e.l1a) rows.push([d,'Linha 1', e.l1a.nome, '1,2,3']);
-      if (e.l1b) rows.push([d,'Linha 1', e.l1b.nome, '4,5,6']);
-      if (e.l2a) rows.push([d,'Linha 2', e.l2a.nome, '1,2,3']);
-      if (e.l2b) rows.push([d,'Linha 2', e.l2b.nome, '4,5,6']);
+      e.midia.forEach(function(o){ rows.push([labelTurno,'Montagem de Midia', o.nome, '-']); });
+      e.mov.forEach(function(o){   rows.push([labelTurno,'Movimentacao',       o.nome, '-']); });
+      e.ades.forEach(function(o){  rows.push([labelTurno,'Adesivos',           o.nome, '-']); });
+      if (e.l1a) rows.push([labelTurno,'Linha 1', e.l1a.nome, '1,2,3']);
+      if (e.l1b) rows.push([labelTurno,'Linha 1', e.l1b.nome, '4,5,6']);
+      if (e.l2a) rows.push([labelTurno,'Linha 2', e.l2a.nome, '1,2,3']);
+      if (e.l2b) rows.push([labelTurno,'Linha 2', e.l2b.nome, '4,5,6']);
       var l3keys = ['l3a','l3b','l3c','l3d'];
-      l3keys.forEach(function(k,i){ if(e[k]) rows.push([d,'Linha 3 (Aprend.)', e[k].nome, 'carro '+(i+1)]); });
+      l3keys.forEach(function(k,i){ if(e[k]) rows.push([labelTurno,'Linha 3 (Aprend.)', e[k].nome, 'carro '+(i+1)]); });
 
       var wb  = XLSX.utils.book_new();
       var ws  = XLSX.utils.aoa_to_sheet(rows);
@@ -282,7 +284,7 @@ export function gerarExcel(escalaInput) {
       var l3count = l3keys.filter(function(k){ return e[k]; }).length;
       var sum = [
         ['RESUMO DA ESCALA VPC'],
-        ['Data:', d],
+        ['Turno:', labelTurno],
         ['Total operadores:', getAllNamesInEscala(e).length],
         [''],
         ['Setor','Qtd'],
@@ -297,7 +299,8 @@ export function gerarExcel(escalaInput) {
       ws2['!cols'] = [{wch:28},{wch:12}];
       XLSX.utils.book_append_sheet(wb, ws2, 'Resumo');
 
-      XLSX.writeFile(wb, 'escala-vpc-' + (e.data||'hoje') + '.xlsx');
+      const fileName = `escala-vpc-${labelTurno.replace(/ /g, '-')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
       
       if (btn) {
         btn.textContent = 'Baixar Excel';
