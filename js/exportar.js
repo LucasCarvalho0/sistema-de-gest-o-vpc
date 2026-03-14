@@ -179,37 +179,42 @@ export function gerarPDF(escalaInput) {
       drawHeader(false);
 
       section('Montagem de Mídia');
-      if (e.midia.length) e.midia.forEach(o => opRow(o.nome)); else empty();
+      const midia = Array.isArray(e.midia) ? e.midia : [];
+      if (midia.length) midia.forEach(o => opRow(typeof o === 'string' ? o : (o.nome || 'Operador'))); else empty();
       y += 5;
 
       section('Movimentação de Veículos');
-      if (e.mov.length) e.mov.forEach(o => opRow(o.nome)); else empty();
+      const mov = Array.isArray(e.mov) ? e.mov : [];
+      if (mov.length) mov.forEach(o => opRow(typeof o === 'string' ? o : (o.nome || 'Operador'))); else empty();
       y += 5;
 
       section('Adesivos');
-      if (e.ades.length) e.ades.forEach(o => opRow(o.nome)); else empty();
+      const ades = Array.isArray(e.ades) ? e.ades : [];
+      if (ades.length) ades.forEach(o => opRow(typeof o === 'string' ? o : (o.nome || 'Operador'))); else empty();
       y += 10;
 
       section('Linha de Produção - Linha 1');
       if (e.l1a || e.l1b) {
-        if (e.l1a) opRow(e.l1a.nome, 'LADO A - Carros 1, 2, 3');
-        if (e.l1b) opRow(e.l1b.nome, 'LADO B - Carros 4, 5, 6');
+        if (e.l1a) opRow(typeof e.l1a === 'string' ? e.l1a : (e.l1a.nome || 'Operador'), 'LADO A - Carros 1, 2, 3');
+        if (e.l1b) opRow(typeof e.l1b === 'string' ? e.l1b : (e.l1b.nome || 'Operador'), 'LADO B - Carros 4, 5, 6');
       } else empty();
       y += 5;
 
       section('Linha de Produção - Linha 2');
       if (e.l2a || e.l2b) {
-        if (e.l2a) opRow(e.l2a.nome, 'LADO A - Carros 1, 2, 3');
-        if (e.l2b) opRow(e.l2b.nome, 'LADO B - Carros 4, 5, 6');
+        if (e.l2a) opRow(typeof e.l2a === 'string' ? e.l2a : (e.l2a.nome || 'Operador'), 'LADO A - Carros 1, 2, 3');
+        if (e.l2b) opRow(typeof e.l2b === 'string' ? e.l2b : (e.l2b.nome || 'Operador'), 'LADO B - Carros 4, 5, 6');
       } else empty();
       y += 5;
 
       section('Linha 3 (Aprendizagem)');
       var hasL3 = false;
-      if (e.l3a) { opRow(e.l3a.nome, 'Carro 1'); hasL3 = true; }
-      if (e.l3b) { opRow(e.l3b.nome, 'Carro 2'); hasL3 = true; }
-      if (e.l3c) { opRow(e.l3c.nome, 'Carro 3'); hasL3 = true; }
-      if (e.l3d) { opRow(e.l3d.nome, 'Carro 4'); hasL3 = true; }
+      ['l3a','l3b','l3c','l3d'].forEach((k, idx) => {
+        if (e[k]) {
+          opRow(typeof e[k] === 'string' ? e[k] : (e[k].nome || 'Operador'), `Carro ${idx + 1}`);
+          hasL3 = true;
+        }
+      });
       if (!hasL3) empty();
 
       // Footer
@@ -267,14 +272,14 @@ export function gerarExcel(escalaInput) {
       var rows = [['Turno','Area','Funcionario','Carros']];
 
       e.midia.forEach(function(o){ rows.push([labelTurno,'Montagem de Midia', o.nome, '-']); });
-      e.mov.forEach(function(o){   rows.push([labelTurno,'Movimentacao',       o.nome, '-']); });
-      e.ades.forEach(function(o){  rows.push([labelTurno,'Adesivos',           o.nome, '-']); });
-      if (e.l1a) rows.push([labelTurno,'Linha 1', e.l1a.nome, '1,2,3']);
-      if (e.l1b) rows.push([labelTurno,'Linha 1', e.l1b.nome, '4,5,6']);
-      if (e.l2a) rows.push([labelTurno,'Linha 2', e.l2a.nome, '1,2,3']);
-      if (e.l2b) rows.push([labelTurno,'Linha 2', e.l2b.nome, '4,5,6']);
+      e.mov.forEach(function(o){   rows.push([labelTurno,'Movimentacao',       typeof o === 'string' ? o : o.nome, '-']); });
+      e.ades.forEach(function(o){  rows.push([labelTurno,'Adesivos',           typeof o === 'string' ? o : o.nome, '-']); });
+      if (e.l1a) rows.push([labelTurno,'Linha 1', typeof e.l1a === 'string' ? e.l1a : e.l1a.nome, '1,2,3']);
+      if (e.l1b) rows.push([labelTurno,'Linha 1', typeof e.l1b === 'string' ? e.l1b : e.l1b.nome, '4,5,6']);
+      if (e.l2a) rows.push([labelTurno,'Linha 2', typeof e.l2a === 'string' ? e.l2a : e.l2a.nome, '1,2,3']);
+      if (e.l2b) rows.push([labelTurno,'Linha 2', typeof e.l2b === 'string' ? e.l2b : e.l2b.nome, '4,5,6']);
       var l3keys = ['l3a','l3b','l3c','l3d'];
-      l3keys.forEach(function(k,i){ if(e[k]) rows.push([labelTurno,'Linha 3 (Aprend.)', e[k].nome, 'carro '+(i+1)]); });
+      l3keys.forEach(function(k,i){ if(e[k]) rows.push([labelTurno,'Linha 3 (Aprend.)', typeof e[k] === 'string' ? e[k] : e[k].nome, 'carro '+(i+1)]); });
 
       var wb  = XLSX.utils.book_new();
       var ws  = XLSX.utils.aoa_to_sheet(rows);
