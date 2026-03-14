@@ -27,6 +27,8 @@ export function renderHistorico() {
       '</div>' +
       '<div class="btn-row">' +
         '<button class="btn btn-secondary btn-sm" onclick="carregarEscala(' + i + ')">Carregar</button>' +
+        '<button class="btn btn-blue btn-sm"      onclick="window.gerarPDF(state.historico[' + i + '])">PDF</button>' +
+        '<button class="btn btn-green btn-sm"     onclick="window.gerarExcel(state.historico[' + i + '])">Excel</button>' +
         '<button class="btn btn-danger btn-sm"    onclick="removeHistorico(' + i + ')">Excluir</button>' +
       '</div>' +
     '</div>';

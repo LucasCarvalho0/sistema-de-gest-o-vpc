@@ -209,6 +209,11 @@ export async function salvarEscala() {
   showAlert('✅ Escala salva com sucesso!', 'success');
   renderDashboard();
   renderHistorico();
+
+  // Redirect to history page so the user can see the export buttons
+  if (window.showPage) {
+    setTimeout(() => window.showPage('historico'), 1000);
+  }
 }
 
 /* ─── ALERTA ─────────────────────────────────────── */

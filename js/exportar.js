@@ -78,15 +78,15 @@ export function buildPDFContent(e) {
 }
 
 /* ─── GERAR PDF (jsPDF) ──────────────────────────── */
-export function gerarPDF() {
+export function gerarPDF(escalaInput) {
   var btn    = document.getElementById('btn-pdf');
   var status = document.getElementById('pdf-status');
-  btn.textContent = 'Gerando...';
-  btn.disabled = true;
+  if (btn) btn.textContent = 'Gerando...';
+  if (btn) btn.disabled = true;
 
   function runPDF() {
     try {
-      var e   = getEscalaExport();
+      var e   = escalaInput || getEscalaExport();
       var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
       var pW  = 210, mg = 20, y = 35;
       var accent = [245, 166, 35]; // Orange VPC
@@ -218,16 +218,22 @@ export function gerarPDF() {
 
       doc.save(`escala-vpc-${e.data || 'relatorio'}.pdf`);
       
-      btn.textContent = 'Baixar PDF';
-      btn.disabled = false;
-      status.textContent = 'PDF gerado com sucesso!';
-      status.style.display = 'block';
-      setTimeout(() => status.style.display = 'none', 4000);
+      if (btn) {
+        btn.textContent = 'Baixar PDF';
+        btn.disabled = false;
+      }
+      if (status) {
+        status.textContent = 'PDF gerado com sucesso!';
+        status.style.display = 'block';
+        setTimeout(() => status.style.display = 'none', 4000);
+      }
 
     } catch (err) {
       console.error(err);
-      btn.textContent = 'Baixar PDF';
-      btn.disabled = false;
+      if (btn) {
+        btn.textContent = 'Baixar PDF';
+        btn.disabled = false;
+      }
       alert('Erro ao gerar PDF: ' + err.message);
     }
   }
@@ -242,15 +248,15 @@ export function gerarPDF() {
 }
 
 /* ─── GERAR EXCEL (SheetJS) ──────────────────────── */
-export function gerarExcel() {
+export function gerarExcel(escalaInput) {
   var btn    = document.getElementById('btn-excel');
   var status = document.getElementById('excel-status');
-  btn.textContent = 'Gerando...';
-  btn.disabled = true;
+  if (btn) btn.textContent = 'Gerando...';
+  if (btn) btn.disabled = true;
 
   function runExcel() {
     try {
-      var e = getEscalaExport();
+      var e = escalaInput || getEscalaExport();
       var d = fmtData(e.data);
       var rows = [['Data','Area','Funcionario','Carros']];
 
@@ -288,14 +294,22 @@ export function gerarExcel() {
       XLSX.utils.book_append_sheet(wb, ws2, 'Resumo');
 
       XLSX.writeFile(wb, 'escala-vpc-' + (e.data||'hoje') + '.xlsx');
-      btn.textContent = 'Baixar Excel';
-      btn.disabled = false;
-      status.textContent = 'Excel baixado com sucesso!';
-      status.style.display = 'block';
-      setTimeout(function(){ status.style.display='none'; }, 4000);
+      
+      if (btn) {
+        btn.textContent = 'Baixar Excel';
+        btn.disabled = false;
+      }
+      if (status) {
+        status.textContent = 'Excel baixado com sucesso!';
+        status.style.display = 'block';
+        setTimeout(function(){ status.style.display='none'; }, 4000);
+      }
 
     } catch(err) {
-      btn.textContent = 'Baixar Excel'; btn.disabled = false;
+      if (btn) {
+        btn.textContent = 'Baixar Excel'; 
+        btn.disabled = false;
+      }
       alert('Erro ao gerar Excel: ' + err.message);
     }
   }
