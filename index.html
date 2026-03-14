@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPC – Sistema de Gestão de Produção</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f5a623">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <!-- ─── HEADER ─────────────────────────────────── -->
+  <header>
+    <div class="logo">VPC<span> / Produção</span></div>
+    <div class="header-date" id="header-date"></div>
+  </header>
+
+  <!-- ─── NAVEGAÇÃO ────────────────────────────────── -->
+  <nav>
+    <button class="active" onclick="showPage('dashboard')">📊 Dashboard</button>
+    <button onclick="showPage('escala')">📋 Montar Escala</button>
+    <button onclick="showPage('funcionarios')">👥 Funcionários</button>
+    <button onclick="showPage('historico')">📅 Histórico</button>
+    <button onclick="showPage('exportar')">📄 Exportar</button>
+  </nav>
+
+  <main>
+
+    <!-- ═══════════════════════════════════════════════
+     PÁGINA: DASHBOARD
+════════════════════════════════════════════════ -->
+    <div id="page-dashboard" class="page active">
+
+      <div class="stat-cards mb24">
+        <div class="stat-card orange">
+          <div class="stat-label">Total Operadores</div>
+          <div class="stat-value" id="dash-total">0</div>
+          <div class="stat-sub">na escala de hoje</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Carros – Linha 1</div>
+          <div class="stat-value">06</div>
+          <div class="stat-sub">6 posições</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Carros – Linha 2</div>
+          <div class="stat-value">06</div>
+          <div class="stat-sub">6 posições</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Linha Aprend.</div>
+          <div class="stat-value">4</div>
+          <div class="stat-sub">carros – linha 3</div>
+        </div>
+      </div>
+
+      <div class="grid-4 mb24" id="dash-setores"></div>
+
+      <div class="section-title" style="margin-bottom:20px">
+        <span class="line-num">LINHA</span> DE PRODUÇÃO
+      </div>
+
+      <div id="dash-linhas"></div>
+
+      <div id="dash-noescala" class="alert alert-warn" style="display:none">
+        ⚠️ Nenhuma escala montada para hoje. Vá em <strong>Montar Escala</strong> para criar a escala do dia.
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+     PÁGINA: MONTAR ESCALA
+════════════════════════════════════════════════ -->
+    <div id="page-escala" class="page">
+
+      <div class="flex justify-between items-center mb24">
+        <h2
+          style="font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:1px;text-transform:uppercase">
+          Montar Escala
+        </h2>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="gerarEscalaAutomatica()">⚙️ Gerar Automático</button>
+          <button class="btn btn-primary" onclick="salvarEscala()">💾 Salvar Escala</button>
+        </div>
+      </div>
+
+      <div class="card mb16">
+        <div class="card-header">
+          <div class="card-title">Data da Escala</div>
+        </div>
+        <input type="date" id="escala-data" style="max-width:260px;margin-bottom:0">
+      </div>
+
+      <!-- Pool de funcionários -->
+      <div class="card mb24">
+        <div class="card-header">
+          <div class="card-title">Funcionários Disponíveis</div>
+          <span class="card-badge badge-orange" id="pool-count">0 disponíveis</span>
+        </div>
+        <div class="drag-pool" id="pool-chips"></div>
+      </div>
+
+      <!-- Montagem de Mídia -->
+      <div class="card mb16">
+        <div class="escala-section-title">🎬 Montagem de Mídia <span class="count" id="cnt-midia">0 / 5</span></div>
+        <div class="drop-zone" id="zone-midia" data-zone="midia" data-max="8" ondragover="onDragOver(event)"
+          ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+        <p class="text-muted" style="margin-top:8px">Mínimo 5 operadores. Arraste os chips acima para cá.</p>
+      </div>
+
+      <!-- Movimentação -->
+      <div class="card mb16">
+        <div class="escala-section-title">🚛 Movimentação de Veículos <span class="count" id="cnt-mov">0 / 3</span>
+        </div>
+        <div class="drop-zone" id="zone-mov" data-zone="mov" data-max="5" ondragover="onDragOver(event)"
+          ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+        <p class="text-muted" style="margin-top:8px">3 a 5 operadores.</p>
+      </div>
+
+      <!-- Adesivos -->
+      <div class="card mb16">
+        <div class="escala-section-title">🏷️ Adesivos <span class="count" id="cnt-ades">0 / 2</span></div>
+        <div class="drop-zone" id="zone-ades" data-zone="ades" data-max="3" ondragover="onDragOver(event)"
+          ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+        <p class="text-muted" style="margin-top:8px">2 a 3 operadores.</p>
+      </div>
+
+      <!-- Linha 1 -->
+      <div class="card mb16">
+        <div class="escala-section-title">🚗 Linha 1 <span class="count" id="cnt-l1">0 / 2</span></div>
+        <div class="line-builder">
+          <div class="line-slot-card">
+            <div class="line-slot-label">Operador A – Carros 1,2,3</div>
+            <div class="drop-zone" id="zone-l1a" data-zone="l1a" data-max="1" ondragover="onDragOver(event)"
+              ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+          </div>
+          <div class="line-slot-card">
+            <div class="line-slot-label">Operador B – Carros 4,5,6</div>
+            <div class="drop-zone" id="zone-l1b" data-zone="l1b" data-max="1" ondragover="onDragOver(event)"
+              ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linha 2 -->
+      <div class="card mb16">
+        <div class="escala-section-title">🚗 Linha 2 <span class="count" id="cnt-l2">0 / 2</span></div>
+        <div class="line-builder">
+          <div class="line-slot-card">
+            <div class="line-slot-label">Operador A – Carros 1,2,3</div>
+            <div class="drop-zone" id="zone-l2a" data-zone="l2a" data-max="1" ondragover="onDragOver(event)"
+              ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+          </div>
+          <div class="line-slot-card">
+            <div class="line-slot-label">Operador B – Carros 4,5,6</div>
+            <div class="drop-zone" id="zone-l2b" data-zone="l2b" data-max="1" ondragover="onDragOver(event)"
+              ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linha 3 -->
+      <div class="card mb24">
+        <div class="escala-section-title">🎓 Linha 3 – Aprendizagem <span class="count" id="cnt-l3">0 / 4</span></div>
+        <div class="line-builder" style="grid-template-columns:repeat(4,1fr)">
+          <div class="line-slot-card">
+            <div class="line-slot-label">Carro 1</div>
+            <div class="drop-zone" id="zone-l3a" data-zone="l3a" data-max="1" ondragover="onDragOver(event)"
+              ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+          </div>
+          <div class="line-slot-card">
+            <div class="line-slot-label">Carro 2</div>
+            <div class="drop-zone" id="zone-l3b" data-zone="l3b" data-max="1" ondragover="onDragOver(event)"
+              ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+          </div>
+          <div class="line-slot-card">
+            <div class="line-slot-label">Carro 3</div>
+            <div class="drop-zone" id="zone-l3c" data-zone="l3c" data-max="1" ondragover="onDragOver(event)"
+              ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+          </div>
+          <div class="line-slot-card">
+            <div class="line-slot-label">Carro 4</div>
+            <div class="drop-zone" id="zone-l3d" data-zone="l3d" data-max="1" ondragover="onDragOver(event)"
+              ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
+          </div>
+        </div>
+        <p class="text-muted" style="margin-top:8px">Novatos são alocados aqui automaticamente. 2 a 4 operadores.</p>
+      </div>
+
+      <div id="escala-alert" style="display:none"></div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+     PÁGINA: FUNCIONÁRIOS
+════════════════════════════════════════════════ -->
+    <div id="page-funcionarios" class="page">
+
+      <div class="flex justify-between items-center mb24">
+        <h2
+          style="font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:1px;text-transform:uppercase">
+          Cadastro de Funcionários
+        </h2>
+        <button class="btn btn-primary" onclick="openModal('modal-add-func')">+ Adicionar</button>
+      </div>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Função Padrão</th>
+              <th>Nível</th>
+              <th>Escalas</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="func-table-body"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+     PÁGINA: HISTÓRICO
+════════════════════════════════════════════════ -->
+    <div id="page-historico" class="page">
+
+      <h2
+        style="font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px">
+        Histórico de Escalas
+      </h2>
+
+      <div id="historico-list">
+        <p class="text-muted">Nenhuma escala salva ainda.</p>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+     PÁGINA: EXPORTAR
+════════════════════════════════════════════════ -->
+    <div id="page-exportar" class="page">
+
+      <h2
+        style="font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px">
+        Exportar Relatórios
+      </h2>
+
+      <div class="grid-2 mb24">
+
+        <!-- PDF -->
+        <div class="card" style="border-top:3px solid var(--accent)">
+          <div class="card-header">
+            <div class="card-title">📄 Relatório PDF</div>
+            <span class="card-badge badge-orange">Download direto</span>
+          </div>
+          <p style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7">
+            Gera um arquivo <strong style="color:var(--text)">.PDF</strong> profissional da escala — pronto para salvar
+            ou enviar pelo WhatsApp.
+          </p>
+          <div
+            style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.6">
+            ✅ Data e turno &nbsp;·&nbsp; ✅ Todos os setores &nbsp;·&nbsp; ✅ Linhas 1, 2 e 3 &nbsp;·&nbsp; ✅ Carros por
+            operador
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="btn-pdf" onclick="gerarPDF()">⬇️ Baixar PDF</button>
+            <button class="btn btn-secondary" onclick="previewPDF()">👁️ Visualizar</button>
+          </div>
+          <div id="pdf-status" style="display:none;margin-top:12px;font-size:13px;color:var(--green)"></div>
+        </div>
+
+        <!-- Excel -->
+        <div class="card" style="border-top:3px solid var(--green)">
+          <div class="card-header">
+            <div class="card-title">📊 Planilha Excel</div>
+            <span class="card-badge badge-green">Download direto</span>
+          </div>
+          <p style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7">
+            Gera um arquivo <strong style="color:var(--text)">.XLSX</strong> com a escala organizada por data, área,
+            funcionário e carros.
+          </p>
+          <div
+            style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.6">
+            ✅ Cabeçalho com data &nbsp;·&nbsp; ✅ Colunas formatadas &nbsp;·&nbsp; ✅ Abre no Excel / Sheets
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-green" id="btn-excel" onclick="gerarExcel()">⬇️ Baixar Excel</button>
+          </div>
+          <div id="excel-status" style="display:none;margin-top:12px;font-size:13px;color:var(--green)"></div>
+        </div>
+
+      </div>
+
+      <!-- Preview PDF inline -->
+      <div id="pdf-preview-wrap" style="display:none">
+        <div class="flex justify-between items-center mb16">
+          <div
+            style="font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent)">
+            Prévia do Relatório</div>
+          <button class="btn btn-secondary btn-sm"
+            onclick="document.getElementById('pdf-preview-wrap').style.display='none'">✕ Fechar</button>
+        </div>
+        <div id="pdf-preview"></div>
+      </div>
+
+    </div>
+
+  </main><!-- /main -->
+
+  <!-- ═══════════════════════════════════════════════
+     MODAL: ADICIONAR FUNCIONÁRIO
+════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-add-func">
+    <div class="modal">
+      <div class="modal-title">Adicionar Funcionário</div>
+      <label>Nome Completo</label>
+      <input type="text" id="func-nome" placeholder="Ex: Valber Silva">
+      <label>Função Padrão</label>
+      <select id="func-funcao">
+        <option value="midia">Montagem de Mídia</option>
+        <option value="mov">Movimentação de Veículos</option>
+        <option value="adesivo">Adesivos</option>
+        <option value="linha">Linha de Produção</option>
+      </select>
+      <label>Nível</label>
+      <select id="func-nivel">
+        <option value="experiente">Experiente</option>
+        <option value="novato">Novato (vai para Linha 3)</option>
+      </select>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addFuncionario()">Salvar</button>
+        <button class="btn btn-secondary" onclick="closeModal('modal-add-func')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+     SCRIPTS – ordem importa!
+════════════════════════════════════════════════ -->
+  <script type="module" src="js/app.js"></script>
+
+</body>
+
+</html>
