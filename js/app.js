@@ -6,6 +6,23 @@ import { renderHistorico, carregarEscala, removeHistorico } from './historico.js
 import { gerarPDF, previewPDF, gerarExcel } from './exportar.js';
 import { supabase } from './supabase.js';
 
+// Expose to window for inline HTML handlers - MOVE TO TOP to ensure availability
+window.showPage = showPage;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.addFuncionario = addFuncionario;
+window.removeFuncionario = removeFuncionario;
+window.gerarEscalaAutomatica = gerarEscalaAutomatica;
+window.salvarEscala = salvarEscala;
+window.carregarEscala = carregarEscala;
+window.removeHistorico = removeHistorico;
+window.gerarPDF = gerarPDF;
+window.previewPDF = previewPDF;
+window.gerarExcel = gerarExcel;
+window.onDragOver = onDragOver;
+window.onDrop = onDrop;
+window.onDragLeave = onDragLeave;
+
 /* ─── INIT ───────────────────────────────────────── */
 window.onload = async function() {
   updateHeaderDate();
@@ -19,7 +36,7 @@ window.onload = async function() {
     if (funcs && funcs.length > 0) {
       state.funcionarios = funcs;
     } else {
-      console.log('Supabase empty, using local defaults.');
+      console.log('Supabase empty or not configured, using local defaults.');
     }
 
     const { data: hist } = await supabase.from('escalas').select('*').order('data', { ascending: false });
@@ -50,11 +67,16 @@ export function updateHeaderDate() {
 }
 
 /* ─── NAVEGAÇÃO ──────────────────────────────────── */
-export function showPage(id) {
+export function showPage(id, event) {
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('nav button').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById('page-' + id).classList.add('active');
-  event.currentTarget.classList.add('active');
+  
+  const pageEl = document.getElementById('page-' + id);
+  if (pageEl) pageEl.classList.add('active');
+  
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
 
   if (id === 'dashboard')    renderDashboard();
   if (id === 'funcionarios') renderFuncTable();
@@ -65,20 +87,3 @@ export function showPage(id) {
 /* ─── MODAL ──────────────────────────────────────── */
 export function openModal(id)  { document.getElementById(id).classList.add('open'); }
 export function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// Expose to window for inline HTML handlers
-window.showPage = showPage;
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.addFuncionario = addFuncionario;
-window.removeFuncionario = removeFuncionario;
-window.gerarEscalaAutomatica = gerarEscalaAutomatica;
-window.salvarEscala = salvarEscala;
-window.carregarEscala = carregarEscala;
-window.removeHistorico = removeHistorico;
-window.gerarPDF = gerarPDF;
-window.previewPDF = previewPDF;
-window.gerarExcel = gerarExcel;
-window.onDragOver = onDragOver;
-window.onDrop = onDrop;
-window.onDragLeave = onDragLeave;
