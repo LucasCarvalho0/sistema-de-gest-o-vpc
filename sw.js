@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vpc-prod-v1';
+const CACHE_NAME = 'vpc-prod-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -11,12 +11,14 @@ const ASSETS = [
   '/js/historico.js',
   '/js/exportar.js',
   '/js/supabase.js',
+  '/js/dateUtils.js',
   '/favicon.png',
   '/manifest.json'
 ];
 
 // Install Event
 self.addEventListener('install', (e) => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
@@ -24,8 +26,29 @@ self.addEventListener('install', (e) => {
   );
 });
 
+// Activate Event
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+      );
+    })
+  );
+});
+
 // Fetch Event
 self.addEventListener('fetch', (e) => {
+  // Navigation fallback for PWA/SPA
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => {
+        return caches.match('/index.html');
+      })
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then((res) => {
       return res || fetch(e.request);
