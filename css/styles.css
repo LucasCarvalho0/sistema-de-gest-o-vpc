@@ -96,9 +96,9 @@ main { padding: 24px; max-width: 1400px; margin: 0 auto; }
 .page.active { display: block; }
 
 /* ─── GRID ───────────────────────────────────────── */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
 
 /* ─── CARDS ──────────────────────────────────────── */
 .card {
@@ -106,6 +106,7 @@ main { padding: 24px; max-width: 1400px; margin: 0 auto; }
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 20px;
+  height: 100%;
 }
 .card-header {
   display: flex;
@@ -136,7 +137,12 @@ main { padding: 24px; max-width: 1400px; margin: 0 auto; }
 .badge-red    { background: rgba(232,67,26,.15);   color: var(--accent2);border: 1px solid rgba(232,67,26,.3); }
 
 /* ─── STAT CARDS ─────────────────────────────────── */
-.stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-cards { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+  gap: 16px; 
+  margin-bottom: 24px; 
+}
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -306,7 +312,15 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 .btn-row       { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ─── TABLE ──────────────────────────────────────── */
-table { width: 100%; border-collapse: collapse; }
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+table { width: 100%; border-collapse: collapse; min-width: 600px; }
 thead th {
   font-family: var(--font-display);
   font-size: 11px;
@@ -462,6 +476,14 @@ tbody td { padding: 10px 14px; font-size: 14px; }
 }
 
 /* ─── PDF PREVIEW ────────────────────────────────── */
+#pdf-preview-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
 #pdf-preview {
   background: #fff;
   color: #111;
@@ -469,10 +491,9 @@ tbody td { padding: 10px 14px; font-size: 14px; }
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.6;
-  border-radius: 8px;
+  min-width: 800px; /* Force desktop-style layout for preview */
 }
 #pdf-preview h1 { font-family: var(--font-display); font-size: 22px; font-weight: 900; letter-spacing: 1px; border-bottom: 2px solid #111; padding-bottom: 8px; margin-bottom: 16px; }
-#pdf-preview h2 { font-family: var(--font-display); font-size: 15px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin: 16px 0 8px; color: #555; }
 #pdf-preview p  { margin: 2px 0; }
 #pdf-preview .pdf-meta { font-size: 12px; color: #666; margin-bottom: 20px; }
 #pdf-preview .pdf-sep  { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
@@ -512,15 +533,37 @@ tbody td { padding: 10px 14px; font-size: 14px; }
 }
 
 /* ─── RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 768px) {
+  header { padding: 0 16px; }
+  .logo { font-size: 20px; }
+  
+  nav { padding: 0 12px; }
+  nav button { padding: 14px 12px; font-size: 12px; }
+
+  main { padding: 16px; }
+  
   .stat-cards { grid-template-columns: repeat(2, 1fr); }
-  .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  .grid-2 { grid-template-columns: 1fr; }
+  .stat-value { font-size: 32px; }
+  
+  .section-title { font-size: 18px; }
+  
   .car-grid { grid-template-columns: repeat(3, 1fr); }
   .line-builder { grid-template-columns: 1fr; }
-  main { padding: 12px; }
+  
+  .modal { padding: 20px; margin: 10px; width: calc(100% - 20px); }
 }
+
 @media (max-width: 480px) {
-  .stat-cards { grid-template-columns: 1fr 1fr; }
+  .stat-cards { grid-template-columns: 1fr; }
   .car-grid { grid-template-columns: repeat(2, 1fr); }
+  
+  .btn { width: 100%; justify-content: center; }
+  .btn-row { flex-direction: column; }
+  
+  .history-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .history-item .btn-row { width: 100%; }
 }
