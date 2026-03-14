@@ -47,9 +47,16 @@ window.onload = async function() {
     console.warn('Could not load from Supabase, using defaults', err);
   }
 
-  renderFuncTable();
-  renderPool();
   renderDashboard();
+  renderPool();
+  renderFuncTable();
+
+  // Register Service Worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('Service Worker Registered'))
+      .catch((err) => console.log('Service Worker Failed', err));
+  }
 
   /* listeners do modal */
   document.querySelectorAll('.modal-overlay').forEach(function(m) {
