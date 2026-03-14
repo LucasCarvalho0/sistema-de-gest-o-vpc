@@ -37,8 +37,14 @@ export function renderFuncTable() {
 
 /* ─── ADICIONAR ──────────────────────────────────── */
 export async function addFuncionario() {
-  var nome = document.getElementById('func-nome').value.trim();
+  const nomeInput = document.getElementById('func-nome');
+  var nome = nomeInput.value.trim();
   if (!nome) return;
+
+  const btn = document.querySelector('#modal-add-func .btn-primary');
+  const originalText = btn.textContent;
+  btn.textContent = 'Salvando...';
+  btn.disabled = true;
 
   const newFunc = {
     nome:    nome,
@@ -47,29 +53,36 @@ export async function addFuncionario() {
     escalas: 0,
   };
 
-  // Sync to local state
-  state.funcionarios.push({ id: state.nextId++, ...newFunc });
-
-  // Sync to Supabase
+  // Sync to Supabase FIRST
   try {
     const { data, error } = await supabase.from('funcionarios').insert([newFunc]).select();
+    
     if (error) {
       console.error('Supabase error:', error);
+      alert('Erro ao salvar no banco de dados: ' + error.message);
     } else if (data && data[0]) {
-      // Update local state with the actual ID from Supabase
-      const index = state.funcionarios.findIndex(f => f.nome === nome && f.id >= 17);
-      if (index !== -1) {
-        state.funcionarios[index].id = data[0].id;
+      // ONLY push to local state if Supabase accepted it
+      state.funcionarios.push(data[0]);
+      
+      closeModal('modal-add-func');
+      nomeInput.value = '';
+      renderFuncTable();
+      renderPool();
+      
+      // If we have showAlert available globally
+      if (window.showAlert) {
+        window.showAlert('✅ Funcionário cadastrado com sucesso!', 'success');
+      } else {
+        alert('✅ Funcionário cadastrado com sucesso!');
       }
     }
   } catch (err) {
     console.error('Failed to sync to Supabase:', err);
+    alert('Erro de conexão com o banco de dados.');
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
   }
-
-  closeModal('modal-add-func');
-  document.getElementById('func-nome').value = '';
-  renderFuncTable();
-  renderPool();
 }
 
 /* ─── REMOVER ────────────────────────────────────── */
