@@ -47,7 +47,7 @@ export function buildPDFContent(e) {
   var ts = new Date().toLocaleString('pt-BR');
 
   return `
-    <div style="padding:30px; font-family: 'Barlow', sans-serif; background: #f9f9fb; color: #333; max-width: 800px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
+    <div style="padding:30px; font-family: 'Barlow', sans-serif; background: #eaedf0; color: #333; max-width: 800px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px;">
       <div style="background: #f5a623; color: #fff; padding: 20px 30px; margin-bottom: 30px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(245,166,35,0.2);">
         <div style="font-weight: 900; font-size: 24px; letter-spacing: 1px;">VPC <span style="font-weight: 300; opacity: 0.8;">PRODUÇÃO</span></div>
         <div style="font-size: 14px; opacity: 0.9;">Relatório de Escala</div>
@@ -120,7 +120,7 @@ export function gerarPDF(escalaInput) {
       }
 
       function drawPageBg() {
-        doc.setFillColor(249, 249, 251); // Off-white/slate-white
+        doc.setFillColor(234, 237, 240); // Darker off-white for more contrast
         doc.rect(0, 0, pW, pH, 'F');
       }
 
