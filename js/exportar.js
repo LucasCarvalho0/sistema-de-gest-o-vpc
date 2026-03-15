@@ -111,7 +111,13 @@ export function gerarPDF(escalaInput) {
       var pW  = 210, pH = 297, mg = 20, y = 35;
       var accent = [245, 166, 35]; // Orange VPC
 
-      function chkPage(h) { if (y + h > 275) { doc.addPage(); drawPageBg(); drawHeader(true); } }
+      function chkPage(h) { 
+        if (y + h > 275) { 
+          doc.addPage(); 
+          drawPageBg(); 
+          drawHeader(true); 
+        } 
+      }
 
       function drawPageBg() {
         doc.setFillColor(249, 249, 251); // Off-white/slate-white
@@ -158,23 +164,28 @@ export function gerarPDF(escalaInput) {
         }
       }
 
-      function section(title) {
-        chkPage(35);
-        // Box for section
+      function section(title, count) {
+        const rowH = 9;
+        const headH = 10;
+        const totalH = headH + (Math.max(1, count) * rowH) + 2;
+        
+        chkPage(totalH < 40 ? totalH : 30); // Check if we can fit at least the header and some rows
+        
+        // Draw the full white card background for this section
         doc.setFillColor(255, 255, 255);
         doc.setDrawColor(230, 230, 230);
-        doc.roundedRect(mg, y - 8, pW - (mg * 2), 40, 2, 2, 'F'); // This covers the starting block
-        // Note: we can't easily know section height, so we draw a white block just for the header area first
-        doc.roundedRect(mg, y - 8, pW - (mg * 2), 10, 2, 2, 'F');
+        doc.roundedRect(mg, y - 8, pW - (mg * 2), totalH, 2, 2, 'F');
         
+        // Section Header Label
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
         doc.setTextColor(accent[0], accent[1], accent[2]);
         doc.text(title.toUpperCase(), mg + 5, y);
         
+        // Left accent bar
         doc.setDrawColor(accent[0], accent[1], accent[2]);
         doc.setLineWidth(1.5);
-        doc.line(mg, y - 8, mg, y + 2); // Left accent bar
+        doc.line(mg, y - 8, mg, y + 2);
         
         y += 10;
       }
@@ -216,44 +227,44 @@ export function gerarPDF(escalaInput) {
       drawPageBg();
       drawHeader(false);
 
-      section('Montagem de Mídia');
       const midia = Array.isArray(e.midia) ? e.midia : [];
+      section('Montagem de Mídia', midia.length);
       if (midia.length) midia.forEach(o => opRow(typeof o === 'string' ? o : (o.nome || 'Operador'))); else empty();
-      y += 5;
+      y += 8;
 
-      section('Movimentação de Veículos');
       const mov = Array.isArray(e.mov) ? e.mov : [];
+      section('Movimentação de Veículos', mov.length);
       if (mov.length) mov.forEach(o => opRow(typeof o === 'string' ? o : (o.nome || 'Operador'))); else empty();
-      y += 5;
+      y += 8;
 
-      section('Adesivos');
       const ades = Array.isArray(e.ades) ? e.ades : [];
+      section('Adesivos', ades.length);
       if (ades.length) ades.forEach(o => opRow(typeof o === 'string' ? o : (o.nome || 'Operador'))); else empty();
-      y += 10;
+      y += 12;
 
-      section('Linha de Produção - Linha 1');
+      const l1Count = (e.l1a ? 1 : 0) + (e.l1b ? 1 : 0);
+      section('Linha de Produção - Linha 1', l1Count);
       if (e.l1a || e.l1b) {
         if (e.l1a) opRow(typeof e.l1a === 'string' ? e.l1a : (e.l1a.nome || 'Operador'), 'LADO A - Carros 1, 2, 3');
         if (e.l1b) opRow(typeof e.l1b === 'string' ? e.l1b : (e.l1b.nome || 'Operador'), 'LADO B - Carros 4, 5, 6');
       } else empty();
-      y += 5;
+      y += 8;
 
-      section('Linha de Produção - Linha 2');
+      const l2Count = (e.l2a ? 1 : 0) + (e.l2b ? 1 : 0);
+      section('Linha de Produção - Linha 2', l2Count);
       if (e.l2a || e.l2b) {
         if (e.l2a) opRow(typeof e.l2a === 'string' ? e.l2a : (e.l2a.nome || 'Operador'), 'LADO A - Carros 1, 2, 3');
         if (e.l2b) opRow(typeof e.l2b === 'string' ? e.l2b : (e.l2b.nome || 'Operador'), 'LADO B - Carros 4, 5, 6');
       } else empty();
-      y += 5;
+      y += 8;
 
-      section('Linha 3 (Aprendizagem)');
-      var hasL3 = false;
-      ['l3a', 'l3b', 'l3c', 'l3d'].forEach((k, idx) => {
-        if (e[k]) {
-          opRow(typeof e[k] === 'string' ? e[k] : (e[k].nome || 'Operador'), `Carro ${idx + 1}`);
-          hasL3 = true;
-        }
-      });
-      if (!hasL3) empty();
+      const l3ops = ['l3a', 'l3b', 'l3c', 'l3d'].filter(k => e[k]);
+      section('Linha 3 (Aprendizagem)', l3ops.length);
+      if (l3ops.length) {
+        ['l3a', 'l3b', 'l3c', 'l3d'].forEach((k, idx) => {
+          if (e[k]) opRow(typeof e[k] === 'string' ? e[k] : (e[k].nome || 'Operador'), `Carro ${idx + 1}`);
+        });
+      } else empty();
 
       // Footer
       var totalPages = doc.getNumberOfPages();
