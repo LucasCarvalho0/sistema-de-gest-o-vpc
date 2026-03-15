@@ -107,11 +107,36 @@ export function updateCounts() {
 /* ─── RENDER POOL ────────────────────────────────── */
 export function renderPool() {
   var pool = document.getElementById('pool-chips');
+  var query = (document.getElementById('pool-search')?.value || '').toLowerCase();
+  
   pool.innerHTML = '';
   state.funcionarios.forEach(function(f) {
-    pool.appendChild(createChip(f.nome, f.id, f.nivel === 'novato'));
+    // Only add if not already in a zone
+    var inEscala = getAllNamesInEscala(state.escalaAtual).indexOf(f.nome) !== -1;
+    if (!inEscala) {
+      var chip = createChip(f.nome, f.id, f.nivel === 'novato');
+      if (query && f.nome.toLowerCase().indexOf(query) === -1) {
+        chip.style.display = 'none';
+      }
+      pool.appendChild(chip);
+    }
   });
   updateCounts();
+}
+
+/* ─── FILTRAR POOL ───────────────────────────────── */
+export function filterPool() {
+  var query = document.getElementById('pool-search').value.toLowerCase();
+  var chips = document.getElementById('pool-chips').querySelectorAll('.drag-chip');
+  
+  chips.forEach(function(chip) {
+    var nome = chip.dataset.nome.toLowerCase();
+    if (nome.indexOf(query) !== -1) {
+      chip.style.display = 'flex';
+    } else {
+      chip.style.display = 'none';
+    }
+  });
 }
 
 /* ─── GERAR AUTOMÁTICO ───────────────────────────── */
@@ -232,9 +257,23 @@ export function limparEscala(novaData) {
     if (el) el.innerHTML = '';
   });
 
+  // Reset search
+  var search = document.getElementById('pool-search');
+  if (search) search.value = '';
+
   renderPool();
   updateCounts();
   renderDashboard();
+}
+
+/**
+ * Acionado pelo botão "Limpar Quadro" (manual)
+ */
+export function limparEscalaBoard() {
+  if (confirm('Tem certeza que deseja limpar todo o quadro da escala atual?')) {
+    limparEscala();
+    showAlert('🧹 Quadro limpo!', 'success');
+  }
 }
 
 /* ─── ALERTA ─────────────────────────────────────── */

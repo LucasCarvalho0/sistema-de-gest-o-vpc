@@ -23,6 +23,9 @@
   <header>
     <div class="logo">VPC<span> / Produção</span></div>
     <div class="header-date" id="header-date"></div>
+    <div id="shift-timer-wrap" style="color:var(--text);font-size:12px;opacity:0.8;font-weight:600">
+      PRÓXIMO TURNO EM: <span id="shift-timer" style="color:var(--accent)">--:--:--</span>
+    </div>
   </header>
 
   <!-- ─── NAVEGAÇÃO ────────────────────────────────── -->
@@ -89,6 +92,7 @@
           Montar Escala
         </h2>
         <div class="btn-row">
+          <button class="btn btn-outline" onclick="limparEscalaBoard()" style="border-color:var(--red);color:var(--red)">🧹 Limpar Quadro</button>
           <button class="btn btn-secondary" onclick="gerarEscalaAutomatica()">⚙️ Gerar Automático</button>
           <button class="btn btn-primary" onclick="salvarEscala()">💾 Salvar Escala</button>
         </div>
@@ -105,6 +109,11 @@
       <div class="card mb24">
         <div class="card-header">
           <div class="card-title">Funcionários Disponíveis</div>
+          <div style="flex:1; max-width: 300px; margin: 0 20px;">
+            <input type="text" id="pool-search" placeholder="🔍 Pesquisar funcionário..." 
+                   style="margin-bottom:0; padding: 6px 12px; font-size: 13px; border-radius: 20px;"
+                   oninput="filterPool()">
+          </div>
           <span class="card-badge badge-orange" id="pool-count">0 disponíveis</span>
         </div>
         <div class="drag-pool" id="pool-chips"></div>

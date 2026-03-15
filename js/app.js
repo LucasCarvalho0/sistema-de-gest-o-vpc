@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { renderDashboard } from './dashboard.js';
 import { renderFuncTable, addFuncionario, removeFuncionario } from './funcionarios.js';
 import { renderHistorico, carregarEscala, removeHistorico } from './historico.js';
-import { renderPool, onDragOver, onDrop, onDragLeave, gerarEscalaAutomatica, salvarEscala, limparEscala } from './escala.js';
+import { renderPool, onDragOver, onDrop, onDragLeave, gerarEscalaAutomatica, salvarEscala, limparEscala, filterPool, limparEscalaBoard } from './escala.js';
 import { gerarPDF, previewPDF, gerarExcel, getEscalaExport } from './exportar.js';
 import { supabase } from './supabase.js';
 import { getProductionDate, formatShiftLabel } from './dateUtils.js';
@@ -25,6 +25,8 @@ window.onDrop = onDrop;
 window.onDragLeave = onDragLeave;
 window.getEscalaExport = getEscalaExport;
 window.limparEscala = limparEscala;
+window.filterPool = filterPool;
+window.limparEscalaBoard = limparEscalaBoard;
 
 /* ─── INIT ───────────────────────────────────────── */
 window.onload = async function() {
@@ -82,6 +84,28 @@ window.onload = async function() {
 
 /* ─── MONITOR DE TURNO (RESET 5:00) ───────────────── */
 export function startShiftMonitor() {
+  // Timer de contagem regressiva (1s)
+  setInterval(() => {
+    const el = document.getElementById('shift-timer');
+    if (!el) return;
+
+    const now = new Date();
+    let target = new Date(now);
+    target.setHours(5, 0, 0, 0);
+
+    // Se já passou das 5h de hoje, o alvo é 5h de amanhã
+    if (now >= target) {
+      target.setDate(target.getDate() + 1);
+    }
+
+    const diff = target - now;
+    const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+    const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+    const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+    el.textContent = `${h}:${m}:${s}`;
+  }, 1000);
+
+  // Monitor de Mudança de Turno (1m)
   setInterval(() => {
     const currentShiftDate = getProductionDate();
     if (state.escalaAtual.data && state.escalaAtual.data !== currentShiftDate) {
@@ -97,7 +121,7 @@ export function startShiftMonitor() {
         window.showAlert('🌙 Turno encerrado às 5:00. Sistema resetado para o novo dia.', 'info');
       }
     }
-  }, 60000); // Checa a cada minuto
+  }, 60000); 
 }
 
 /* ─── DATA NO HEADER ─────────────────────────────── */
