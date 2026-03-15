@@ -47,20 +47,20 @@ export function buildPDFContent(e) {
   var ts = new Date().toLocaleString('pt-BR');
 
   return `
-    <div style="padding:30px; font-family: 'Barlow', sans-serif; background: #fff; color: #333; max-width: 800px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
-      <div style="background: #f5a623; color: #fff; padding: 20px 30px; margin-bottom: 30px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="padding:30px; font-family: 'Barlow', sans-serif; background: #f9f9fb; color: #333; max-width: 800px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
+      <div style="background: #f5a623; color: #fff; padding: 20px 30px; margin-bottom: 30px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(245,166,35,0.2);">
         <div style="font-weight: 900; font-size: 24px; letter-spacing: 1px;">VPC <span style="font-weight: 300; opacity: 0.8;">PRODUÇÃO</span></div>
         <div style="font-size: 14px; opacity: 0.9;">Relatório de Escala</div>
       </div>
       
-      <div style="margin-bottom: 30px; border-bottom: 2px solid #f9f9f9; padding-bottom: 15px;">
+      <div style="margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-left: 10px; margin-right: 10px;">
         <h1 style="font-size: 20px; color: #111; margin: 0 0 5px 0;">Escala do Turno</h1>
         <p style="color: #666; font-size: 14px; margin: 0;">
           <strong>${formatShiftLabel(e.data)}</strong> &nbsp;·&nbsp; ${allNames.length} operadores ativos &nbsp;·&nbsp; Gerado em ${ts}
         </p>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 10px;">
         <div>
           ${sectionHTML('Mídia', e.midia)}
           ${sectionHTML('Movimentação', e.mov)}
@@ -87,8 +87,8 @@ export function buildPDFContent(e) {
       </div>
     </div>
     <style>
-      .pdf-card { background: #fdfdfd; border: 1px solid #f0f0f0; border-radius: 6px; padding: 15px; margin-bottom: 20px; }
-      .pdf-sec-title { font-weight: 800; font-size: 12px; color: #f5a623; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid #f5a623; padding-left: 10px; }
+      .pdf-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+      .pdf-sec-title { font-weight: 800; font-size: 12px; color: #f5a623; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; border-left: 4px solid #f5a623; padding-left: 10px; }
       .pdf-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f4f4f4; font-size: 14px; color: #333; }
       .pdf-item:last-child { border-bottom: none; }
       .pdf-cars { color: #888; font-size: 11px; font-weight: 500; font-style: italic; }
@@ -111,7 +111,12 @@ export function gerarPDF(escalaInput) {
       var pW  = 210, mg = 20, y = 35;
       var accent = [245, 166, 35]; // Orange VPC
 
-      function chkPage(h) { if (y + h > 275) { doc.addPage(); drawHeader(true); } }
+      function chkPage(h) { if (y + h > 275) { doc.addPage(); drawPageBg(); drawHeader(true); } }
+
+      function drawPageBg() {
+        doc.setFillColor(249, 249, 251); // Off-white/slate-white
+        doc.rect(0, 0, pW, pH, 'F');
+      }
 
       function drawHeader(isNewPage) {
         // Full width header banner
@@ -154,10 +159,13 @@ export function gerarPDF(escalaInput) {
       }
 
       function section(title) {
-        chkPage(30);
-        // Card header style
-        doc.setFillColor(248, 248, 248);
-        doc.roundedRect(mg, y - 6, pW - (mg * 2), 10, 1, 1, 'F');
+        chkPage(35);
+        // Box for section
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(230, 230, 230);
+        doc.roundedRect(mg, y - 8, pW - (mg * 2), 40, 2, 2, 'F'); // This covers the starting block
+        // Note: we can't easily know section height, so we draw a white block just for the header area first
+        doc.roundedRect(mg, y - 8, pW - (mg * 2), 10, 2, 2, 'F');
         
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
@@ -166,20 +174,24 @@ export function gerarPDF(escalaInput) {
         
         doc.setDrawColor(accent[0], accent[1], accent[2]);
         doc.setLineWidth(1.5);
-        doc.line(mg, y - 6, mg, y + 4); // Left accent bar
+        doc.line(mg, y - 8, mg, y + 2); // Left accent bar
         
         y += 10;
       }
 
       function opRow(nome, info) {
         chkPage(10);
+        // Draw card background for the row
+        doc.setFillColor(255, 255, 255);
+        doc.rect(mg, y - 4, pW - (mg * 2), 10, 'F');
+
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
+        doc.setFontSize(11); // Slightly smaller
         doc.setTextColor(50, 50, 50);
         doc.text(nome, mg + 5, y);
         
         if (info) {
-          doc.setFontSize(9);
+          doc.setFontSize(8.5);
           doc.setFont('helvetica', 'italic');
           doc.setTextColor(140, 140, 140);
           doc.text(info, pW - mg - 5, y, { align: 'right' });
@@ -187,7 +199,7 @@ export function gerarPDF(escalaInput) {
         
         doc.setDrawColor(245, 245, 245);
         doc.setLineWidth(0.2);
-        doc.line(mg + 5, y + 2.5, pW - mg - 5, y + 2.5);
+        doc.line(mg + 5, y + 3, pW - mg - 5, y + 3);
         y += 9;
       }
 
@@ -201,6 +213,7 @@ export function gerarPDF(escalaInput) {
       }
 
       // Start Drawing
+      drawPageBg();
       drawHeader(false);
 
       section('Montagem de Mídia');
