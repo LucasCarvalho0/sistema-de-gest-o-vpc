@@ -108,7 +108,7 @@ export function gerarPDF(escalaInput) {
     try {
       var e   = escalaInput || getEscalaExport();
       var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-      var pW  = 210, mg = 20, y = 35;
+      var pW  = 210, pH = 297, mg = 20, y = 35;
       var accent = [245, 166, 35]; // Orange VPC
 
       function chkPage(h) { if (y + h > 275) { doc.addPage(); drawPageBg(); drawHeader(true); } }
@@ -265,7 +265,8 @@ export function gerarPDF(escalaInput) {
         doc.text(`Gerado em: ${now}  |  Página ${i} de ${totalPages}`, pW / 2, 288, { align: 'center' });
       }
       
-      const fileName = `escala-vpc-${formatShiftLabel(e.data).replace(/ /g, '-')}.pdf`;
+      const cleanLabel = formatShiftLabel(e.data).replace(/[^a-zA-Z0-9]/g, '-');
+      const fileName = `escala-vpc-${cleanLabel}.pdf`;
       doc.save(fileName);
       
       if (btn) {
@@ -343,7 +344,8 @@ export function gerarExcel(escalaInput) {
       ws2['!cols'] = [{wch:28},{wch:12}];
       XLSX.utils.book_append_sheet(wb, ws2, 'Resumo');
 
-      const fileName = `escala-vpc-${labelTurno.replace(/ /g, '-')}.xlsx`;
+      const cleanLabel = labelTurno.replace(/[^a-zA-Z0-9]/g, '-');
+      const fileName = `escala-vpc-${cleanLabel}.xlsx`;
       XLSX.writeFile(wb, fileName);
       
       if (btn) {
