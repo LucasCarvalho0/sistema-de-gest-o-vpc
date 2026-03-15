@@ -1,8 +1,8 @@
 import { state } from './state.js';
-import { renderPool, onDragOver, onDrop, onDragLeave, gerarEscalaAutomatica, salvarEscala } from './escala.js';
 import { renderDashboard } from './dashboard.js';
 import { renderFuncTable, addFuncionario, removeFuncionario } from './funcionarios.js';
 import { renderHistorico, carregarEscala, removeHistorico } from './historico.js';
+import { renderPool, onDragOver, onDrop, onDragLeave, gerarEscalaAutomatica, salvarEscala, limparEscala } from './escala.js';
 import { gerarPDF, previewPDF, gerarExcel, getEscalaExport } from './exportar.js';
 import { supabase } from './supabase.js';
 import { getProductionDate, formatShiftLabel } from './dateUtils.js';
@@ -24,6 +24,7 @@ window.onDragOver = onDragOver;
 window.onDrop = onDrop;
 window.onDragLeave = onDragLeave;
 window.getEscalaExport = getEscalaExport;
+window.limparEscala = limparEscala;
 
 /* ─── INIT ───────────────────────────────────────── */
 window.onload = async function() {
@@ -62,6 +63,8 @@ window.onload = async function() {
   renderPool();
   renderFuncTable();
 
+  startShiftMonitor();
+
   // Register Service Worker for PWA
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
@@ -76,6 +79,26 @@ window.onload = async function() {
     });
   });
 };
+
+/* ─── MONITOR DE TURNO (RESET 5:00) ───────────────── */
+export function startShiftMonitor() {
+  setInterval(() => {
+    const currentShiftDate = getProductionDate();
+    if (state.escalaAtual.data && state.escalaAtual.data !== currentShiftDate) {
+      console.log('🔄 Mudança de turno detectada! Resetando dashboard...');
+      
+      // Update data input
+      document.getElementById('escala-data').value = currentShiftDate;
+      
+      // Clear scale (this also calls renderDashboard)
+      limparEscala(currentShiftDate);
+      
+      if (window.showAlert) {
+        window.showAlert('🌙 Turno encerrado às 5:00. Sistema resetado para o novo dia.', 'info');
+      }
+    }
+  }, 60000); // Checa a cada minuto
+}
 
 /* ─── DATA NO HEADER ─────────────────────────────── */
 export function updateHeaderDate() {

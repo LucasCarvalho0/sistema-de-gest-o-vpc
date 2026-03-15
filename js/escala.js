@@ -181,7 +181,8 @@ export function gerarEscalaAutomatica() {
 
 /* ─── SALVAR ESCALA ──────────────────────────────── */
 export async function salvarEscala() {
-  var data = document.getElementById('escala-data').value;
+  var dataInput = document.getElementById('escala-data');
+  var data = dataInput ? dataInput.value : '';
   if (!data) { showAlert('⚠️ Selecione a data da escala.', 'warn'); return; }
 
   ['midia','mov','ades'].forEach(function(z){ syncZoneToState(document.getElementById('zone-'+z)); });
@@ -210,10 +211,30 @@ export async function salvarEscala() {
   renderDashboard();
   renderHistorico();
 
-  // Redirect to history page so the user can see the export buttons
   if (window.showPage) {
     setTimeout(() => window.showPage('historico'), 1000);
   }
+}
+
+/* ─── LIMPAR ESCALA ──────────────────────────────── */
+export function limparEscala(novaData) {
+  state.escalaAtual = {
+    data: novaData || state.escalaAtual.data,
+    midia: [], mov: [], ades: [],
+    l1a: null, l1b: null,
+    l2a: null, l2b: null,
+    l3a: null, l3b: null, l3c: null, l3d: null
+  };
+
+  // Clear DOM zones
+  ['midia','mov','ades','l1a','l1b','l2a','l2b','l3a','l3b','l3c','l3d'].forEach(function(z) {
+    var el = document.getElementById('zone-' + z);
+    if (el) el.innerHTML = '';
+  });
+
+  renderPool();
+  updateCounts();
+  renderDashboard();
 }
 
 /* ─── ALERTA ─────────────────────────────────────── */
