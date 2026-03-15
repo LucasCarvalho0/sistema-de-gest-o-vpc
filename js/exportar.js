@@ -26,58 +26,73 @@ export function buildPDFContent(e) {
     var content = '';
     if (isLine) {
       if (ops.length === 0) content = '<p class="pdf-none">Nenhum operador</p>';
-      else content = ops.map(o => `<div class="pdf-item"><span>${o.nome}</span> <span class="pdf-cars">${o.cars}</span></div>`).join('');
+      else content = ops.map(o => {
+        const name = typeof o === 'string' ? o : (o.nome || 'Operador');
+        const cars = typeof o === 'string' ? '' : (o.cars || '');
+        return `<div class="pdf-item"><span>${name}</span> <span class="pdf-cars">${cars}</span></div>`;
+      }).join('');
     } else {
-      if (ops.length === 0) content = '<p class="pdf-none">Nenhum operador</p>';
-      else content = ops.map(o => `<div class="pdf-item"><span>${o.nome}</span></div>`).join('');
+      if (!ops || ops.length === 0) content = '<p class="pdf-none">Nenhum operador</p>';
+      else content = ops.map(o => `<div class="pdf-item"><span>${typeof o === 'string' ? o : o.nome}</span></div>`).join('');
     }
-    return `<div class="pdf-sec-title">${title}</div>${content}`;
+    return `
+      <div class="pdf-card">
+        <div class="pdf-sec-title">${title}</div>
+        ${content}
+      </div>
+    `;
   }
 
   var allNames = getAllNamesInEscala(e);
   var ts = new Date().toLocaleString('pt-BR');
 
   return `
-    <div style="padding:20px; font-family: sans-serif; color: #333;">
-      <div style="background: #f5a623; color: #000; padding: 10px 20px; font-weight: bold; margin-bottom: 20px; border-radius: 4px;">
-        VPC - SISTEMA DE GESTÃO DE PRODUÇÃO
+    <div style="padding:30px; font-family: 'Barlow', sans-serif; background: #fff; color: #333; max-width: 800px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
+      <div style="background: #f5a623; color: #fff; padding: 20px 30px; margin-bottom: 30px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: 900; font-size: 24px; letter-spacing: 1px;">VPC <span style="font-weight: 300; opacity: 0.8;">PRODUÇÃO</span></div>
+        <div style="font-size: 14px; opacity: 0.9;">Relatório de Escala</div>
       </div>
-      <h1 style="font-size: 22px; margin: 0 0 5px 0; color: #111;">Relatório de Escala</h1>
-      <p style="color: #666; font-size: 13px; margin-bottom: 20px;">
-        Turno: <strong>${formatShiftLabel(e.data)}</strong> &nbsp;|&nbsp; Operadores: <strong>${allNames.length}</strong> &nbsp;|&nbsp; Gerado: ${ts}
-      </p>
+      
+      <div style="margin-bottom: 30px; border-bottom: 2px solid #f9f9f9; padding-bottom: 15px;">
+        <h1 style="font-size: 20px; color: #111; margin: 0 0 5px 0;">Escala do Turno</h1>
+        <p style="color: #666; font-size: 14px; margin: 0;">
+          <strong>${formatShiftLabel(e.data)}</strong> &nbsp;·&nbsp; ${allNames.length} operadores ativos &nbsp;·&nbsp; Gerado em ${ts}
+        </p>
+      </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div>
-          ${sectionHTML('Montagem de Mídia', e.midia)}
+          ${sectionHTML('Mídia', e.midia)}
           ${sectionHTML('Movimentação', e.mov)}
           ${sectionHTML('Adesivos', e.ades)}
         </div>
         <div>
           ${sectionHTML('Linha 1', [
-            e.l1a ? {nome: e.l1a.nome, cars: 'Carros 1, 2, 3'} : null,
-            e.l1b ? {nome: e.l1b.nome, cars: 'Carros 4, 5, 6'} : null
+            e.l1a ? {nome: typeof e.l1a === 'string' ? e.l1a : e.l1a.nome, cars: 'LADO A - Carros 1, 2, 3'} : null,
+            e.l1b ? {nome: typeof e.l1b === 'string' ? e.l1b : e.l1b.nome, cars: 'LADO B - Carros 4, 5, 6'} : null
           ].filter(Boolean), true)}
 
           ${sectionHTML('Linha 2', [
-            e.l2a ? {nome: e.l2a.nome, cars: 'Carros 1, 2, 3'} : null,
-            e.l2b ? {nome: e.l2b.nome, cars: 'Carros 4, 5, 6'} : null
+            e.l2a ? {nome: typeof e.l2a === 'string' ? e.l2a : e.l2a.nome, cars: 'LADO A - Carros 1, 2, 3'} : null,
+            e.l2b ? {nome: typeof e.l2b === 'string' ? e.l2b : e.l2b.nome, cars: 'LADO B - Carros 4, 5, 6'} : null
           ].filter(Boolean), true)}
 
-          ${sectionHTML('Linha 3 (Aprendizagem)', [
-            e.l3a ? {nome: e.l3a.nome, cars: 'Carro 1'} : null,
-            e.l3b ? {nome: e.l3b.nome, cars: 'Carro 2'} : null,
-            e.l3c ? {nome: e.l3c.nome, cars: 'Carro 3'} : null,
-            e.l3d ? {nome: e.l3d.nome, cars: 'Carro 4'} : null
+          ${sectionHTML('Linha 3 (Aprend.)', [
+            e.l3a ? {nome: typeof e.l3a === 'string' ? e.l3a : e.l3a.nome, cars: 'Carro 1'} : null,
+            e.l3b ? {nome: typeof e.l3b === 'string' ? e.l3b : e.l3b.nome, cars: 'Carro 2'} : null,
+            e.l3c ? {nome: typeof e.l3c === 'string' ? e.l3c : e.l3c.nome, cars: 'Carro 3'} : null,
+            e.l3d ? {nome: typeof e.l3d === 'string' ? e.l3d : e.l3d.nome, cars: 'Carro 4'} : null
           ].filter(Boolean), true)}
         </div>
       </div>
     </div>
     <style>
-      .pdf-sec-title { font-weight: bold; font-size: 14px; color: #f5a623; border-bottom: 1.5px solid #eee; padding-bottom: 5px; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-      .pdf-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f9f9f9; font-size: 14px; }
-      .pdf-cars { color: #888; font-size: 12px; font-weight: normal; }
-      .pdf-none { color: #aaa; font-size: 13px; font-style: italic; margin: 5px 0; }
+      .pdf-card { background: #fdfdfd; border: 1px solid #f0f0f0; border-radius: 6px; padding: 15px; margin-bottom: 20px; }
+      .pdf-sec-title { font-weight: 800; font-size: 12px; color: #f5a623; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid #f5a623; padding-left: 10px; }
+      .pdf-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f4f4f4; font-size: 14px; color: #333; }
+      .pdf-item:last-child { border-bottom: none; }
+      .pdf-cars { color: #888; font-size: 11px; font-weight: 500; font-style: italic; }
+      .pdf-none { color: #bbb; font-size: 13px; font-style: italic; margin: 5px 0; text-align: center; }
     </style>
   `;
 }
@@ -99,80 +114,90 @@ export function gerarPDF(escalaInput) {
       function chkPage(h) { if (y + h > 275) { doc.addPage(); drawHeader(true); } }
 
       function drawHeader(isNewPage) {
-        // Header background
+        // Full width header banner
         doc.setFillColor(accent[0], accent[1], accent[2]);
-        doc.rect(0, 0, pW, 20, 'F');
+        doc.rect(0, 0, pW, 25, 'F');
         
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
         doc.setTextColor(255, 255, 255);
-        doc.text('VPC - SISTEMA DE GESTÃO DE PRODUÇÃO', mg, 13);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.text('VPC', mg, 14);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(18);
+        doc.text('PRODUÇÃO', mg + 13, 14);
         
         doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        var now = new Date().toLocaleString('pt-BR');
-        doc.text('Relatório emitido em: ' + now, pW - mg - 50, 13);
+        doc.text('RELATÓRIO DE ESCALA', pW - mg - 40, 14);
 
         if (!isNewPage) {
-          y = 35;
-          doc.setTextColor(33, 33, 33);
-          doc.setFontSize(22);
+          y = 40;
+          doc.setTextColor(40, 40, 40);
+          doc.setFontSize(24);
           doc.setFont('helvetica', 'bold');
-          doc.text('Relatório de Escala', mg, y);
+          doc.text('Escala do Turno', mg, y);
           y += 10;
           
           doc.setFontSize(11);
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(100, 100, 100);
-          doc.text(`Turno: ${formatShiftLabel(e.data)}   |   Total de Operadores: ${getAllNamesInEscala(e).length}`, mg, y);
+          doc.text(`${formatShiftLabel(e.data)}`, mg, y);
+          doc.text(`Total de Operadores: ${getAllNamesInEscala(e).length}`, pW - mg, y, { align: 'right' });
+          
+          y += 5;
+          doc.setDrawColor(240, 240, 240);
+          doc.setLineWidth(1);
+          doc.line(mg, y, pW - mg, y);
           y += 15;
         } else {
-          y = 30; // Margin top for new page content
+          y = 35;
         }
       }
 
       function section(title) {
-        chkPage(25);
-        doc.setFillColor(250, 250, 250);
-        doc.rect(mg - 2, y - 5, pW - (mg * 2) + 4, 8, 'F');
+        chkPage(30);
+        // Card header style
+        doc.setFillColor(248, 248, 248);
+        doc.roundedRect(mg, y - 6, pW - (mg * 2), 10, 1, 1, 'F');
         
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10);
+        doc.setFontSize(11);
         doc.setTextColor(accent[0], accent[1], accent[2]);
-        doc.text(title.toUpperCase(), mg, y);
+        doc.text(title.toUpperCase(), mg + 5, y);
         
         doc.setDrawColor(accent[0], accent[1], accent[2]);
-        doc.setLineWidth(0.5);
-        doc.line(mg, y + 1.5, mg + 20, y + 1.5);
+        doc.setLineWidth(1.5);
+        doc.line(mg, y - 6, mg, y + 4); // Left accent bar
+        
         y += 10;
       }
 
       function opRow(nome, info) {
-        chkPage(8);
+        chkPage(10);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
-        doc.setTextColor(40, 40, 40);
-        doc.text(nome, mg + 2, y);
+        doc.setTextColor(50, 50, 50);
+        doc.text(nome, mg + 5, y);
         
         if (info) {
-          doc.setFontSize(10);
-          doc.setTextColor(150, 150, 150);
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(140, 140, 140);
           doc.text(info, pW - mg - 5, y, { align: 'right' });
         }
         
-        doc.setDrawColor(240, 240, 240);
+        doc.setDrawColor(245, 245, 245);
         doc.setLineWidth(0.2);
-        doc.line(mg, y + 2, pW - mg, y + 2);
-        y += 8;
+        doc.line(mg + 5, y + 2.5, pW - mg - 5, y + 2.5);
+        y += 9;
       }
 
       function empty() {
-        chkPage(8);
+        chkPage(10);
         doc.setFont('helvetica', 'italic');
         doc.setFontSize(10);
-        doc.setTextColor(180, 180, 180);
-        doc.text('Nenhum operador atribuído nesta seção', mg + 2, y);
-        y += 8;
+        doc.setTextColor(190, 190, 190);
+        doc.text('Nenhum operador atribuído nesta seção', mg + 5, y);
+        y += 9;
       }
 
       // Start Drawing
@@ -209,7 +234,7 @@ export function gerarPDF(escalaInput) {
 
       section('Linha 3 (Aprendizagem)');
       var hasL3 = false;
-      ['l3a','l3b','l3c','l3d'].forEach((k, idx) => {
+      ['l3a', 'l3b', 'l3c', 'l3d'].forEach((k, idx) => {
         if (e[k]) {
           opRow(typeof e[k] === 'string' ? e[k] : (e[k].nome || 'Operador'), `Carro ${idx + 1}`);
           hasL3 = true;
@@ -221,9 +246,10 @@ export function gerarPDF(escalaInput) {
       var totalPages = doc.getNumberOfPages();
       for (var i = 1; i <= totalPages; i++) {
         doc.setPage(i);
-        doc.setFontSize(9);
-        doc.setTextColor(180, 180, 180);
-        doc.text(`VPC Produção - Página ${i} de ${totalPages}`, pW / 2, 288, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setTextColor(200, 200, 200);
+        var now = new Date().toLocaleString('pt-BR');
+        doc.text(`Gerado em: ${now}  |  Página ${i} de ${totalPages}`, pW / 2, 288, { align: 'center' });
       }
       
       const fileName = `escala-vpc-${formatShiftLabel(e.data).replace(/ /g, '-')}.pdf`;
