@@ -1,5 +1,5 @@
 import { state, getAllNamesInEscala, fmtData } from './state.js';
-import { formatShiftLabel } from './dateUtils.js';
+import { formatShiftLabel, isWeekend } from './dateUtils.js';
 
 /* ─── Escala a exportar ──────────────────────────── */
 export function getEscalaExport() {
