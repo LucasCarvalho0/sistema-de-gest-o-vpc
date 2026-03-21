@@ -82,7 +82,17 @@ window.exportHEExcel = function(idx) {
 /* ─── CARREGAR ───────────────────────────────────── */
 export function carregarEscala(i) {
   state.escalaAtual = JSON.parse(JSON.stringify(state.historico[i]));
-  alert('Escala de ' + state.historico[i].data + ' carregada. Vá para Montar Escala para editar.');
+  // Em vez de alert, apenas redireciona e foca na aba de montar escala
+  window.location.hash = '#page-escala';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('[onclick="showPage(\'page-escala\')"]').classList.add('active');
+  const alertEl = document.getElementById('escala-alert');
+  if (alertEl) {
+    alertEl.innerHTML = `⚠️ Escala de <strong>${state.historico[i].data}</strong> carregada! Você já pode editar.`;
+    alertEl.className = 'alert alert-info';
+    alertEl.style.display = 'block';
+    setTimeout(() => { alertEl.style.display = 'none'; }, 5000);
+  }
 }
 
 /* ─── REMOVER ────────────────────────────────────── */

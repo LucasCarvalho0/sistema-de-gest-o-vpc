@@ -136,6 +136,14 @@ export function gerarPDF(escalaInput) {
       var pW  = 210, pH = 297, mg = 20, y = 35;
       var accent = e.area === 'Compound' ? [59, 130, 246] : [245, 166, 35]; 
 
+      // Helper to get name with company
+      const getName = (o) => {
+        if (!o) return '';
+        const nome = typeof o === 'string' ? o : (o.nome || 'Operador');
+        const emp = typeof o === 'object' && o.empresa ? ` (${o.empresa})` : '';
+        return nome + emp;
+      };
+
       function chkPage(h) { 
         if (y + h > 275) { 
           doc.addPage(); 
@@ -257,14 +265,6 @@ export function gerarPDF(escalaInput) {
 
         drawPageBg();
         drawHeader(false);
-
-        // Helper to get name with company
-        const getName = (o) => {
-          if (!o) return '';
-          const nome = typeof o === 'string' ? o : (o.nome || 'Operador');
-          const emp = typeof o === 'object' && o.empresa ? ` (${o.empresa})` : '';
-          return nome + emp;
-        };
 
         if (e.area === 'Compound') {
           const compound = Array.isArray(e.compound) ? e.compound : [];
