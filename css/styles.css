@@ -590,39 +590,42 @@ tbody td { padding: 10px 14px; font-size: 14px; }
 }
 
 @media (max-width: 768px) {
-  header { padding: 0 16px; }
-  .logo { font-size: 20px; }
+  header { height: auto; padding: 12px 16px; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .logo { font-size: 18px; }
+  #header-date { font-size: 12px; }
   
-  nav { padding: 0 12px; }
-  nav button { padding: 14px 12px; font-size: 12px; }
+  nav { flex-wrap: wrap; justify-content: center; height: auto; padding: 4px; gap: 4px; }
+  nav button { padding: 10px 8px; font-size: 11px; flex: 1 1 30%; text-align: center; border-radius: 6px; }
 
-  main { padding: 16px; }
+  main { padding: 12px; }
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
   
-  .stat-cards { grid-template-columns: repeat(2, 1fr); }
-  .stat-value { font-size: 32px; }
+  .card { padding: 16px; margin-bottom: 16px; }
+  .card-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .card-title { font-size: 14px; }
   
-  .section-title { font-size: 18px; }
+  .btn-row { flex-wrap: wrap; gap: 6px; width: 100%; }
+  .btn { padding: 10px 12px; font-size: 12px; flex: 1; justify-content: center; min-width: 120px; }
   
-  .car-grid { grid-template-columns: repeat(3, 1fr); }
-  .line-builder { grid-template-columns: 1fr; }
+  .drag-chip { padding: 10px 12px; font-size: 12px; margin-bottom: 8px; }
+  .drop-zone { min-height: 120px; }
   
-  .modal { padding: 20px; margin: 10px; width: calc(100% - 20px); }
-  .op-row-name { font-size: 15px; }
-    
-  /* Linha 3 responsiveness on mobile */
-  .line-builder[style*="grid-template-columns:repeat(4,1fr)"],
-  .line-builder[style*="grid-template-columns: repeat(4, 1fr)"] {
-      grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
+  .modal { padding: 20px; width: 95%; max-height: 85vh; }
+  .modal-title { font-size: 18px; }
+  
+  .line-group { padding: 12px; margin-bottom: 20px; }
+  .line-num { font-size: 24px; }
+  
+  #pdf-preview-wrap { margin-top: 10px; }
+  #pdf-preview { padding: 15px; min-width: 600px; font-size: 12px; }
+  
+  .stat-cards { grid-template-columns: 1fr; gap: 12px; }
+  .stat-value { font-size: 28px; }
 
-@media (max-width: 480px) {
-  .stat-cards { grid-template-columns: 1fr; }
-  .car-grid { grid-template-columns: repeat(2, 1fr); }
-  
-  .btn { width: 100%; justify-content: center; }
-  .btn-row { flex-direction: column; }
-  
-  .history-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .history-item { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
   .history-item .btn-row { width: 100%; }
+  
+  /* Linha 3 mobile */
+  .line-builder { grid-template-columns: 1fr !important; gap: 12px; }
+  .car-grid { grid-template-columns: 1fr; }
 }

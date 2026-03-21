@@ -348,6 +348,13 @@ export function gerarPDF(escalaInput) {
       const fileName = `escala-${e.tipo === 'hora-extra' ? 'he' : 'vpc'}-${cleanLabel}.pdf`;
       doc.save(fileName);
       
+      // Em dispositivos mobile, abrir em nova aba ajuda baixar
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      }
+
       if (btn) { btn.textContent = 'Baixar PDF'; btn.disabled = false; }
       if (status) { status.textContent = 'PDF gerado!'; status.style.display = 'block'; setTimeout(() => status.style.display = 'none', 4000); }
     } catch (err) {

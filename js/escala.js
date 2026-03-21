@@ -1,4 +1,4 @@
-import { state, getAllNamesInEscala } from './state.js';
+import { state, getAllNamesInEscala, getInitialEscala, LIDER_FIXO } from './state.js';
 import { renderDashboard } from './dashboard.js';
 import { renderHistorico } from './historico.js';
 import { supabase } from './supabase.js';
@@ -219,7 +219,13 @@ export async function salvarEscala() {
   if (!data) { showAlert('⚠️ Selecione a data da escala.', 'warn'); return; }
 
   ['midia','mov','ades'].forEach(function(z){ syncZoneToState(document.getElementById('zone-'+z)); });
+  ['conferente1','conferente2'].forEach(function(z){ syncZoneToState(document.getElementById('zone-'+z)); });
   ['l1a','l1b','l2a','l2b','l3a','l3b','l3c','l3d'].forEach(function(z){ syncZoneToState(document.getElementById('zone-'+z)); });
+
+  // Garantir líder fixo se estiver vazio
+  if (!state.escalaAtual.lider) {
+    state.escalaAtual.lider = { ...LIDER_FIXO };
+  }
 
   state.escalaAtual.data = data;
   var snapshot = JSON.parse(JSON.stringify(state.escalaAtual));
@@ -251,16 +257,10 @@ export async function salvarEscala() {
 
 /* ─── LIMPAR ESCALA ──────────────────────────────── */
 export function limparEscala(novaData) {
-  state.escalaAtual = {
-    data: novaData || state.escalaAtual.data,
-    midia: [], mov: [], ades: [],
-    l1a: null, l1b: null,
-    l2a: null, l2b: null,
-    l3a: null, l3b: null, l3c: null, l3d: null
-  };
+  state.escalaAtual = getInitialEscala(novaData || state.escalaAtual.data);
 
-  // Clear DOM zones
-  ['midia','mov','ades','l1a','l1b','l2a','l2b','l3a','l3b','l3c','l3d'].forEach(function(z) {
+  // Limpa as zonas do DOM
+  ['midia','mov','ades','conferente1','conferente2','l1a','l1b','l2a','l2b','l3a','l3b','l3c','l3d'].forEach(function(z) {
     var el = document.getElementById('zone-' + z);
     if (el) el.innerHTML = '';
   });

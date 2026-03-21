@@ -52,6 +52,12 @@ window.onload = async function() {
       if (existingScale) {
         // Deep copy to state.escalaAtual
         state.escalaAtual = JSON.parse(JSON.stringify(existingScale));
+        // Garantir que a Janaina esteja lá (caso escalas antigas não tenham)
+        if (!state.escalaAtual.lider) {
+          import('./state.js').then(m => {
+            state.escalaAtual.lider = { ...m.LIDER_FIXO };
+          });
+        }
         console.log('Loaded existing scale for production shift:', prodDate);
       } else {
         console.log('No scale found for production shift:', prodDate, '- Starting empty (automatic reset).');

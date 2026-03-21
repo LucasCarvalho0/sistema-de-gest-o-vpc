@@ -1,17 +1,9 @@
-export const state = {
-  funcionarios: [], // Each func: { id, nome, funcao, nivel, empresa }
+export const LIDER_FIXO = { id: 9999, nome: 'Janaina Mendes', empresa: 'SESÉ' };
 
-  escalaAtual: {
-    data: '',
-    lider: { id: 9999, nome: 'Janaina Mendes', empresa: 'SESÉ' }, 
-    midia: [],
-    mov:   [],
-    ades:  [],
-    conferente1: null, conferente2: null,
-    l1a: null, l1b: null,
-    l2a: null, l2b: null,
-    l3a: null, l3b: null, l3c: null, l3d: null,
-  },
+export const state = {
+  funcionarios: [], // Cada func: { id, nome, funcao, nivel, empresa }
+
+  escalaAtual: getInitialEscala(''),
 
   historico: [],
   
@@ -20,6 +12,21 @@ export const state = {
   historicoHoraExtra: [],
 
   nextId: 1,
+};
+
+export function getInitialEscala(data) {
+  return {
+    data: data || '',
+    lider: { ...LIDER_FIXO },
+    midia: [],
+    mov:   [],
+    ades:  [],
+    conferente1: null,
+    conferente2: null,
+    l1a: null, l1b: null,
+    l2a: null, l2b: null,
+    l3a: null, l3b: null, l3c: null, l3d: null,
+  };
 }
 
 /* ─── Helpers de estado ──────────────────────────── */
