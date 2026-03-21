@@ -1,6 +1,6 @@
 import { state, getAllNamesInEscala } from './state.js';
 import { supabase } from './supabase.js';
-import { formatShiftLabel } from './dateUtils.js';
+import { formatShiftLabel, isWeekend } from './dateUtils.js';
 
 // Expose to window for inline HTML handlers
 window.exportHistoryPDF = function(index) {
@@ -44,7 +44,15 @@ function renderItems(data, isHE) {
     }
     
     var d = formatShiftLabel(h.data);
-    const badge = ' <span class="card-badge badge-blue">Compound</span>';
+    let badge = '';
+    
+    if (h.area === 'Compound') {
+      badge = ' <span class="card-badge badge-blue">Equipe Compound</span>';
+    } else if (isWeekend(h.data)) {
+      badge = ' <span class="card-badge badge-orange">Hora Extra VPC</span>';
+    } else {
+      badge = ' <span class="card-badge badge-green">Escala VPC</span>';
+    }
     
     const exportFn = isHE ? 'exportHE' : 'exportHistory';
 

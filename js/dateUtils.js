@@ -36,3 +36,13 @@ export function formatShiftLabel(dateStr) {
   
   return `${day1} a ${day2} de ${month} ${year}`;
 }
+
+/**
+ * Verifica se a data é um final de semana (Sábado ou Domingo)
+ */
+export function isWeekend(dateStr) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr + 'T12:00:00');
+  const day = d.getDay();
+  return day === 0 || day === 6; // 0 = Domingo, 6 = Sábado
+}

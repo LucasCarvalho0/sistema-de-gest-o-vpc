@@ -157,16 +157,29 @@ export function gerarPDF(escalaInput) {
         doc.setFontSize(18);
         doc.text('VPC', mg, 14);
         doc.setFont('helvetica', 'normal');
-        doc.text(e.area === 'Compound' ? '> COMPOUND' : 'PRODUÇÃO', mg + 13, 14);
+        doc.text(e.area === 'Compound' ? '> COMPOUND' : '> VPC', mg + 13, 14);
+        
+        let reportTitle = 'RELATÓRIO DE ESCALA';
+        if (e.area === 'Compound') {
+          reportTitle = 'RELATÓRIO DE HORA EXTRA (COMPOUND)';
+        } else if (isWeekend(e.data)) {
+          reportTitle = 'RELATÓRIO DE HORA EXTRA (VPC)';
+        }
+        
         doc.setFontSize(9);
-        doc.text(e.tipo === 'hora-extra' ? 'RELATÓRIO DE HORA EXTRA' : 'RELATÓRIO DE ESCALA', pW - mg - 45, 14);
+        doc.text(reportTitle, pW - mg, 14, { align: 'right' });
 
         if (!isNewPage) {
           y = 40;
           doc.setTextColor(40, 40, 40);
           doc.setFontSize(24);
           doc.setFont('helvetica', 'bold');
-          doc.text(e.area === 'Compound' ? 'Equipe Emprestada' : 'Escala do Turno', mg, y);
+          
+          let pageTitle = 'Escala do Turno VPC';
+          if (e.area === 'Compound') pageTitle = 'Equipe Emprestada (Compound)';
+          else if (isWeekend(e.data)) pageTitle = 'Hora Extra VPC';
+
+          doc.text(pageTitle, mg, y);
           y += 10;
           doc.setFontSize(11);
           doc.setFont('helvetica', 'normal');
