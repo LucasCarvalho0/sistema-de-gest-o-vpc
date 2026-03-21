@@ -51,7 +51,8 @@ export function onDrop(e, zone) {
   zone.classList.remove('drag-over');
   if (!draggingChip) return;
 
-  var max   = parseInt(zone.dataset.max || 99);
+  var isSingle = zone.classList.contains('drop-zone-single');
+  var max   = isSingle ? 1 : parseInt(zone.dataset.max || 99);
   var chips = zone.querySelectorAll('.drag-chip').length;
   var pool  = document.getElementById('pool-chips');
 
@@ -99,6 +100,13 @@ export function updateCounts() {
   document.getElementById('cnt-l1').textContent    = (cnt('l1a') + cnt('l1b')) + ' / 2';
   document.getElementById('cnt-l2').textContent    = (cnt('l2a') + cnt('l2b')) + ' / 2';
   document.getElementById('cnt-l3').textContent    = (cnt('l3a')+cnt('l3b')+cnt('l3c')+cnt('l3d')) + ' / 4';
+  
+  if (document.getElementById('cnt-lider')) {
+    document.getElementById('cnt-lider').textContent = '1';
+  }
+  if (document.getElementById('cnt-conf')) {
+    document.getElementById('cnt-conf').textContent = (cnt('conferente1') + cnt('conferente2'));
+  }
 
   var poolCount = document.getElementById('pool-chips').querySelectorAll('.drag-chip').length;
   document.getElementById('pool-count').textContent = poolCount + ' disponíveis';
@@ -145,7 +153,7 @@ export function gerarEscalaAutomatica() {
   var novatos = funcs.filter(function(f){ return f.nivel === 'novato'; });
 
   /* limpa zonas */
-  ['midia','mov','ades','l1a','l1b','l2a','l2b','l3a','l3b','l3c','l3d'].forEach(function(z) {
+  ['midia','mov','ades','conferente1','conferente2','l1a','l1b','l2a','l2b','l3a','l3b','l3c','l3d'].forEach(function(z) {
     var el = document.getElementById('zone-' + z);
     if (el) el.innerHTML = '';
   });

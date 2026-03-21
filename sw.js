@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vpc-prod-v2';
+const CACHE_NAME = 'vpc-prod-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -21,6 +21,7 @@ self.addEventListener('install', (e) => {
   self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
+      console.log('SW: Pre-caching assets');
       return cache.addAll(ASSETS);
     })
   );
@@ -39,7 +40,14 @@ self.addEventListener('activate', (e) => {
 
 // Fetch Event
 self.addEventListener('fetch', (e) => {
-  // Navigation fallback for PWA/SPA
+  const url = new URL(e.request.url);
+
+  // 1. Bypass cache for localhost (development)
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    return; // Let the browser handle normally
+  }
+
+  // 2. Navigation fallback for PWA/SPA
   if (e.request.mode === 'navigate') {
     e.respondWith(
       fetch(e.request).catch(() => {
@@ -49,9 +57,26 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  e.respondWith(
-    caches.match(e.request).then((res) => {
-      return res || fetch(e.request);
-    })
-  );
+  // 3. Network-First Strategy for assets in ASSETS list
+  const isAsset = ASSETS.some(asset => url.pathname === asset || url.pathname === asset.substring(1));
+  
+  if (isAsset) {
+    e.respondWith(
+      fetch(e.request)
+        .then(response => {
+          // Update cache with fresh version
+          const resClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
+          return response;
+        })
+        .catch(() => caches.match(e.request))
+    );
+  } else {
+    // Default: Cache-First or Fetch
+    e.respondWith(
+      caches.match(e.request).then((res) => {
+        return res || fetch(e.request);
+      })
+    );
+  }
 });

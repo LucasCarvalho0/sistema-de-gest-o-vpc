@@ -57,6 +57,11 @@ window.onload = async function() {
         console.log('No scale found for production shift:', prodDate, '- Starting empty (automatic reset).');
       }
     }
+    const { data: heHist } = await supabase.from('horas_extras').select('*').order('data', { ascending: false });
+    if (heHist && heHist.length > 0) {
+      state.historicoHoraExtra = heHist;
+    }
+
   } catch (err) {
     console.warn('Could not load from Supabase, using defaults', err);
   }
@@ -64,6 +69,11 @@ window.onload = async function() {
   renderDashboard();
   renderPool();
   renderFuncTable();
+
+  // Initialize Hora Extra
+  import('./horaExtra.js').then(m => {
+    m.renderHEPool();
+  });
 
   startShiftMonitor();
 
@@ -147,6 +157,10 @@ export function showPage(id, event) {
   if (id === 'funcionarios') renderFuncTable();
   if (id === 'historico')    renderHistorico();
   if (id === 'escala')       renderPool();
+  if (id === 'hora-extra') {
+    import('./horaExtra.js').then(m => m.renderHEPool());
+  }
+
   if (id === 'exportar') {
     const label = document.getElementById('export-shift-label');
     if (label) {

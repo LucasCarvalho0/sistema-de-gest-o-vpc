@@ -25,14 +25,28 @@ export function renderDashboard() {
   var total = getAllNamesInEscala(escala).length;
   document.getElementById('dash-total').textContent = total;
 
+  // 0. Liderança em destaque
+  let lidHTML = '';
+  if (escala.lider) {
+    lidHTML = '<div class="card mb16" style="background:var(--surface2);border-top:3px solid var(--accent)">' +
+      '<div class="flex gap24 p12 wrap">' +
+      `<div class="flex items-center gap8"><div class="op-avatar av-orange">${initials(escala.lider.nome)}</div><div><div style="font-size:10px;text-transform:uppercase;opacity:0.6">Líder do Setor</div><div style="font-weight:700">${escala.lider.nome}</div></div></div>` +
+      '</div></div>';
+  }
+
   /* ─── Setores ─────────────────────────────────── */
+  var confs = [];
+  if (escala.conferente1) confs.push(escala.conferente1);
+  if (escala.conferente2) confs.push(escala.conferente2);
+
   var setorData = [
-    { label:'Montagem de Mídia', icon:'🎬', bclass:'badge-orange', ops: escala.midia },
-    { label:'Movimentação',       icon:'🚛', bclass:'badge-blue',   ops: escala.mov   },
-    { label:'Adesivos',           icon:'🏷️', bclass:'badge-green',  ops: escala.ades  },
+    { label:'Montagem de Mídia', icon:'🎬', bclass:'badge-orange', ops: escala.midia || [] },
+    { label:'Movimentação',       icon:'🚛', bclass:'badge-blue',   ops: escala.mov || []   },
+    { label:'Adesivos',           icon:'🏷️', bclass:'badge-green',  ops: escala.ades || []  },
+    { label:'Conferência',        icon:'🔍', bclass:'badge-accent', ops: confs        },
   ];
 
-  setores.innerHTML = setorData.map(function(s, si) {
+  setores.innerHTML = lidHTML + setorData.map(function(s, si) {
     var liItems = s.ops.map(function(o) {
       return '<li><div class="op-avatar ' + avClass(si) + '">' + initials(o.nome) + '</div>' + o.nome + '</li>';
     }).join('');

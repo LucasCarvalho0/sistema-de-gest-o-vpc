@@ -1,26 +1,37 @@
 export const state = {
-  funcionarios: [],
+  funcionarios: [], // Each func: { id, nome, funcao, nivel, empresa }
 
   escalaAtual: {
     data: '',
+    lider: { id: 9999, nome: 'Janaina Mendes', empresa: 'SESÉ' }, 
     midia: [],
     mov:   [],
     ades:  [],
+    conferente1: null, conferente2: null,
     l1a: null, l1b: null,
     l2a: null, l2b: null,
     l3a: null, l3b: null, l3c: null, l3d: null,
   },
 
   historico: [],
+  
+  // Extra Hour State (Compound Only)
+  horaExtraAtual: { data: '', area: 'Compound', compound: [] },
+  historicoHoraExtra: [],
+
   nextId: 1,
-};
+}
 
 /* ─── Helpers de estado ──────────────────────────── */
 
 export function getAllNamesInEscala(e) {
   var all = [];
-  ['midia','mov','ades'].forEach(function(k){ e[k].forEach(function(o){ all.push(o.nome); }); });
-  ['l1a','l1b','l2a','l2b','l3a','l3b','l3c','l3d'].forEach(function(k){ if (e[k]) all.push(e[k].nome); });
+  if (e.area === 'Compound' && e.compound) {
+    e.compound.forEach(function(o){ all.push(o.nome); });
+    return all;
+  }
+  ['midia','mov','ades'].forEach(function(k){ if(e[k]) e[k].forEach(function(o){ all.push(o.nome); }); });
+  ['lider','conferente1','conferente2','l1a','l1b','l2a','l2b','l3a','l3b','l3c','l3d'].forEach(function(k){ if (e[k]) all.push(e[k].nome); });
   return all;
 }
 

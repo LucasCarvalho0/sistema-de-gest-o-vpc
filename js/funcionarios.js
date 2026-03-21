@@ -7,14 +7,18 @@ export const FUNC_LABELS = {
   midia:   'Montagem de Mídia',
   mov:     'Movimentação',
   adesivo: 'Adesivos',
-  linha:   'Linha de Produção'
+  linha:   'Linha de Produção',
+  lider:   'Líder',
+  conferente: 'Conferente'
 };
 
 export const ROLE_CLASSES = {
   midia:   'role-midia',
   mov:     'role-mov',
   adesivo: 'role-adesivo',
-  linha:   'role-linha'
+  linha:   'role-linha',
+  lider:   'role-lider',
+  conferente: 'role-conferente'
 };
 
 /* ─── RENDER TABELA ──────────────────────────────── */
@@ -27,6 +31,7 @@ export function renderFuncTable() {
         '<div class="op-avatar ' + avClass(f.id % 4) + '">' + initials(f.nome) + '</div>' +
         f.nome +
       '</td>' +
+      '<td><span class="role-badge" style="background:var(--surface2);color:var(--text)">' + (f.empresa || 'CC') + '</span></td>' +
       '<td><span class="role-badge ' + ROLE_CLASSES[f.funcao] + '">' + FUNC_LABELS[f.funcao] + '</span></td>' +
       '<td><span class="role-badge ' + nivelCls + '">' + f.nivel + '</span></td>' +
       '<td style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--accent)">' + f.escalas + '</td>' +
@@ -48,6 +53,7 @@ export async function addFuncionario() {
 
   const newFunc = {
     nome:    nome,
+    empresa: document.getElementById('func-empresa').value,
     funcao:  document.getElementById('func-funcao').value,
     nivel:   document.getElementById('func-nivel').value,
     escalas: 0,

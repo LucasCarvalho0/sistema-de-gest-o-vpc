@@ -361,8 +361,38 @@ tbody td { padding: 10px 14px; font-size: 14px; }
 .role-adesivo { background: rgba(34,197,94,.15);   color: var(--green); }
 .role-linha   { background: rgba(232,67,26,.15);   color: var(--accent2); }
 .role-novato  { background: rgba(168,85,247,.15);  color: #a855f7; }
+.role-lider   { background: rgba(245,166,35,.20);  color: var(--accent); border: 1px solid rgba(245,166,35,.3); }
+.role-conferente { background: rgba(59,130,246,.20); color: var(--blue); border: 1px solid rgba(59,130,246,.3); }
 
 /* ─── ESCALA BUILDER ─────────────────────────────── */
+.drop-zone-single {
+  flex: 1;
+  min-width: 140px;
+  min-height: 54px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  transition: all 0.2s;
+}
+.drop-zone-single.drag-over {
+  border-color: var(--accent);
+  background: rgba(245, 166, 35, 0.05);
+}
+.zone-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  pointer-events: none;
+}
 .escala-section-title {
   font-family: var(--font-display);
   font-size: 16px;

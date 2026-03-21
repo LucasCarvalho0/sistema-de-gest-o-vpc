@@ -34,6 +34,7 @@
     <button onclick="showPage('escala', event)">📋 Montar Escala</button>
     <button onclick="showPage('funcionarios', event)">👥 Funcionários</button>
     <button onclick="showPage('historico', event)">📅 Histórico</button>
+    <button onclick="showPage('hora-extra', event)">⏰ Hora Extra</button>
     <button onclick="showPage('exportar', event)">📄 Exportar</button>
   </nav>
 
@@ -119,6 +120,17 @@
         <div class="drag-pool" id="pool-chips"></div>
       </div>
 
+      <!-- LIDERANÇA -->
+      <div class="card mb16" style="border-top:3px solid var(--accent)">
+        <div class="escala-section-title">⭐ Liderança <span class="count" id="cnt-lider">0</span></div>
+        <div class="flex gap12 wrap">
+          <div class="drop-zone-single fixed-slot" style="flex:1; border-style:solid; border-color:var(--accent); background:rgba(245,166,35,0.05); text-align:center">
+            <div class="zone-label">Líder do Setor</div>
+            <div style="font-weight:800; color:var(--text); font-size:16px">Janaina Mendes</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Montagem de Mídia -->
       <div class="card mb16">
         <div class="escala-section-title">🎬 Montagem de Mídia <span class="count" id="cnt-midia">0 / 5</span></div>
@@ -142,6 +154,19 @@
         <div class="drop-zone" id="zone-ades" data-zone="ades" data-max="3" ondragover="onDragOver(event)"
           ondrop="onDrop(event,this)" ondragleave="onDragLeave(event)"></div>
         <p class="text-muted" style="margin-top:8px">2 a 3 operadores.</p>
+      </div>
+
+      <!-- CONFERÊNCIA -->
+      <div class="card mb16" style="border-top:2px solid var(--blue)">
+        <div class="escala-section-title">🔍 Conferência <span class="count" id="cnt-conf">0</span></div>
+        <div class="flex gap12 wrap">
+          <div class="drop-zone-single" data-zone="conferente1" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, this)">
+            <div class="zone-label">Conf. 1</div>
+          </div>
+          <div class="drop-zone-single" data-zone="conferente2" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, this)">
+            <div class="zone-label">Conf. 2</div>
+          </div>
+        </div>
       </div>
 
       <!-- Linha 1 -->
@@ -211,6 +236,56 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════
+     PÁGINA: HORA EXTRA
+════════════════════════════════════════════════ -->
+    <div id="page-hora-extra" class="page">
+
+      <div class="flex justify-between items-center mb24">
+        <h2 style="font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:1px;text-transform:uppercase">
+          Escala de Hora Extra
+        </h2>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="limparHoraExtraBoard()" style="border-color:var(--red);color:var(--red)">🧹 Limpar</button>
+          <button class="btn btn-primary" onclick="salvarHoraExtra()">💾 Salvar Hora Extra</button>
+        </div>
+      </div>
+
+      <div class="grid-2 mb16">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Data da Hora Extra</div></div>
+          <input type="date" id="he-data" style="margin-bottom:0">
+          <p class="text-muted mt8">Equipe emprestada para o Compound.</p>
+        </div>
+      </div>
+
+      <!-- Pool de funcionários (Reutilizado) -->
+      <div class="card mb24">
+        <div class="card-header">
+          <div class="card-title">Funcionários Disponíveis</div>
+          <div style="flex:1; max-width: 300px; margin: 0 20px;">
+            <input type="text" id="he-pool-search" placeholder="🔍 Pesquisar funcionário..." 
+                   style="margin-bottom:0; padding: 6px 12px; font-size: 13px; border-radius: 20px;"
+                   oninput="filterHEPool()">
+          </div>
+          <span class="card-badge badge-orange" id="he-pool-count">0 disponíveis</span>
+        </div>
+        <div class="drag-pool" id="he-pool-chips"></div>
+      </div>
+
+      <div id="he-group-compound">
+        <div class="card mb16">
+          <div class="escala-section-title">🏢 Equipe Compound <span class="count" id="he-cnt-compound">0</span></div>
+          <div class="drop-zone" id="he-zone-compound" data-zone="compound" style="min-height: 200px" 
+               ondragover="onDragOver(event)" ondrop="onDropHE(event,this)" ondragleave="onDragLeave(event)"></div>
+          <p class="text-muted mt8">Arraste todos os funcionários que participarão da hora extra para esta área.</p>
+        </div>
+      </div>
+
+      <div id="he-alert" style="display:none"></div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
      PÁGINA: FUNCIONÁRIOS
 ════════════════════════════════════════════════ -->
     <div id="page-funcionarios" class="page">
@@ -229,6 +304,7 @@
             <thead>
               <tr>
                 <th>Nome</th>
+                <th>Empresa</th>
                 <th>Função Padrão</th>
                 <th>Nível</th>
                 <th>Escalas</th>
@@ -254,6 +330,14 @@
 
       <div id="historico-list">
         <p class="text-muted">Nenhuma escala salva ainda.</p>
+      </div>
+
+      <h2 style="font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin:32px 0 24px">
+        Histórico de Hora Extra
+      </h2>
+
+      <div id="historico-he-list">
+        <p class="text-muted">Nenhuma hora extra salva ainda.</p>
       </div>
 
     </div>
@@ -339,12 +423,20 @@
       <div class="modal-title">Adicionar Funcionário</div>
       <label>Nome Completo</label>
       <input type="text" id="func-nome" placeholder="Ex: Nome do Funcionário">
+      <label>Empresa</label>
+      <select id="func-empresa">
+        <option value="SESÉ">SESÉ</option>
+        <option value="OURO">OURO</option>
+      </select>
+
       <label>Função Padrão</label>
       <select id="func-funcao">
         <option value="midia">Montagem de Mídia</option>
         <option value="mov">Movimentação de Veículos</option>
         <option value="adesivo">Adesivos</option>
         <option value="linha">Linha de Produção</option>
+        <option value="lider">Líder</option>
+        <option value="conferente">Conferente</option>
       </select>
       <label>Nível</label>
       <select id="func-nivel">
@@ -361,7 +453,30 @@
   <!-- ═══════════════════════════════════════════════
      SCRIPTS – ordem importa!
 ════════════════════════════════════════════════ -->
+  <!-- MODAL: CONFIRMAR HORA EXTRA (COMPOUND) -->
+  <div id="modal-he-confirm" class="modal-overlay">
+    <div class="modal">
+      <h3 id="he-confirm-title" style="margin-bottom:8px">Confirmar Alocação</h3>
+      <p class="text-muted mb16" style="font-size:13px">Confirme os detalhes para a hora extra.</p>
+      
+      <label>Empresa</label>
+      <select id="he-confirm-empresa" class="mb16">
+        <option value="SESÉ">SESÉ</option>
+        <option value="OURO">OURO</option>
+      </select>
+
+      <label>Horário</label>
+      <input type="text" id="he-confirm-horario" class="mb16" placeholder="ex: 15:38 - 01:00">
+      
+      <div class="flex gap12 mt16">
+        <button class="btn btn-outline" onclick="closeModal('modal-he-confirm')" style="flex:1">Cancelar</button>
+        <button class="btn btn-primary" id="btn-he-confirm-save" style="flex:2">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/horaExtra.js"></script>
 
 </body>
 
